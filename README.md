@@ -44,13 +44,13 @@ I enabled simple shortcuts in the extension:
 * Space - play/pause slideshow
 * Arrow Left/Right - jump backwards/forwards
 
-#### [Companion app](todo)
+#### [Companion app](https://github.com/koostamas/screensaver-companion)
 
 There were two big issues with the extension that came from the sandboxed nature of the browser.
 1. The extension could not read the wakelocks of the system, it could only check other tabs in the browser. This meant that the screensaver would come on even if you were watching something in an other app (eg.: Netflix, VLC, Flex).
 2. The extension could create the screensaver window only at the same level as the original Chrome window. This meant that the screensaver would display in front of the browser, but if you were focused on an other app, that would still stay on top, and the photos were in the background.
 
-So I created a Python application that solves both of these problems. You can check that out [here](todo).
+So I created a Python application that solves both of these problems. You can check that out [here](https://github.com/koostamas/screensaver-companion).
 This Companion app is not required at all, the screensaver works perfectly without it, just with the above limitations.
 
 ### Building the extension
