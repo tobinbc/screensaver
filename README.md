@@ -35,7 +35,7 @@ I added some extra info to the screensaver screen.
 * Author and location
   * The extension parses the description of a photo in the following format: `author;geocodedLocation`
   * This is not mandatory, if you don't have description on your photos, the author will be the album name and the location will be marked absent
-  * This is necessary, because the Google Photos API doesn't give you access to either of this information, so I created a [Tampermonkey script](https://gist.github.com/koostamas/eff6087c4aa0702926da54437dc96ae2), that I could ran on the Google Photos website and it would fill the description field with the extracted author and geocoded location info
+  * This is necessary, because the Google Photos API doesn't give you access to either of this information, so I created a [Tampermonkey script](https://gist.github.com/koostamas/b2c4b897bf349ddc2d7aabfabaa296c4), that I could ran on the Google Photos website and it would fill the description field with the extracted author and geocoded location info
     
 
 #### Simple shortcuts
