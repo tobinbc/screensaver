@@ -64,8 +64,8 @@ export function isActive() {
  * @param single - if true, only show on main display
  */
 export async function display(single: boolean) {
-
-  if (await hasWakeLock()) {
+  const hasWakeLockResult = await hasWakeLock();
+  if (hasWakeLockResult) {
     return;
   }
 
@@ -95,9 +95,7 @@ async function hasWakeLock() {
   try {
     const url = 'http://localhost:32123/check-wake-locks';
     const response = await ChromeHttp.doGet(url);
-    if (response.cod === 200) {
-      return response.hasWakeLocks;
-    }
+    return !!response.hasWakeLocks;
   } catch (e) {
     ChromeLog.error(e.message, 'SSController.hasWakeLock()', 'Error with Companion app');
   }
@@ -196,6 +194,8 @@ async function open(disp?: chrome.system.display.DisplayInfo) {
       }
       await chromep.windows.update(win.id, {focused: true});
     }
+
+    await new Promise(r => setTimeout(r, 1000));
 
     await placeWindowOnTop();
 
