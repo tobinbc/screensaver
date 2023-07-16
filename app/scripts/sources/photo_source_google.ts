@@ -83,6 +83,8 @@ interface IMediaItem {
   description?: string;
   /** Extra information about item */
   mediaMetadata: IMediaMetaData;
+  /** Filename of the media item. This is shown to the user in the item's info section in the Google Photos app. */
+  filename: string;
 }
 
 /** Google Photos API representation of an album */
@@ -106,14 +108,14 @@ const ALBUMS_QUERY =
 
 /** Only return stuff we use */
 const MEDIA_ITEMS_FIELDS =
-    'fields=nextPageToken,mediaItems(id,productUrl,baseUrl,description,mimeType,' +
+    'fields=nextPageToken,mediaItems(id,productUrl,baseUrl,description,mimeType,filename,' +
     'mediaMetadata/creationTime,mediaMetadata/width,mediaMetadata/height)';
 
 /** Only return stuff we use */
 const MEDIA_ITEMS_RESULTS_FIELDS =
     'fields=mediaItemResults(status/code,mediaItem/id,mediaItem/productUrl,' +
-    'mediaItem/baseUrl,mediaItem/description,mediaItem/mimeType,mediaItem/mediaMetadata/creationTime,' +
-    'mediaItem/mediaMetadata/width,mediaItem/mediaMetadata/height)';
+    'mediaItem/baseUrl,mediaItem/description,mediaItem/mimeType,mediaItem/filename,' +
+    'mediaItem/mediaMetadata/creationTime,mediaItem/mediaMetadata/width,mediaItem/mediaMetadata/height)';
 
 /** A source of photos from Google Photos */
 export class GoogleSource extends PhotoSource {
@@ -805,6 +807,9 @@ export class GoogleSource extends PhotoSource {
                       hour: 'numeric',
                       minute: 'numeric',
                     }),
+            filename: mediaItem.filename,
+            width,
+            height,
           },
         } as IPhoto;
       }

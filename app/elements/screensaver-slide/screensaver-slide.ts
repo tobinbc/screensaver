@@ -387,6 +387,19 @@ export class ScreensaverSlideElement
     }
   }
 
+  /** Return whether the current photo contains motion. */
+  private isMotionPhoto(): boolean {
+    const filename = this.photo && this.photo.getEx() ? this.photo.getEx().filename : undefined;
+    return filename && filename.endsWith('.MP.jpg');
+  }
+
+  private createVideoUrl(): string {
+    if (!this.photo) {
+      throw new Error('Photo is undefined!');
+    }
+    return this.url.replace(`=w${this.photo.getEx().width}-h${this.photo.getEx().height}`, '=dv');
+  }
+
   /** Render the slide according to the view type */
   protected render() {
     switch (this.viewType) {
@@ -432,16 +445,8 @@ export class ScreensaverSlideElement
     const SCREEN_AR = screen.width / screen.height;
     const ar = this.photo.getAspectRatio();
     const image = this.ironImage;
-    const imageStyle = image.style;
     const img: HTMLImageElement = image.$.img as HTMLImageElement;
-    const imgStyle = img.style;
-    const dateStyle = this.date.style;
-    const authorStyle = this.author.style;
-    const locationStyle = this.location.style;
-    const creationDateStyle = this.creationDate.style;
-    const timeStyle = this.time.style;
-    const weatherStyle = this.weather.style;
-
+    
     // percent of the screen width of image
     let imgWidthPer = ((ar / SCREEN_AR * 100));
     imgWidthPer = Math.min(imgWidthPer, 100.0);
@@ -450,18 +455,41 @@ export class ScreensaverSlideElement
     let imgHeightPer = ((SCREEN_AR / ar * 100));
     imgHeightPer = Math.min(imgHeightPer, 100.0);
     const bottom = (100 - imgHeightPer) / 2;
-
-    // set image size
     const height = Math.round(imgHeightPer / 100 * screen.height);
     const width = Math.round(imgWidthPer / 100 * screen.width);
-    image.height = height;
-    image.width = width;
-    imgStyle.height = height + 'px';
-    imgStyle.width = width + 'px';
-    imageStyle.top = (screen.height - height) / 2 + 'px';
-    imageStyle.left = (screen.width - width) / 2 + 'px';
+
+    // todo: do video render for other view types as well
+    if (this.isMotionPhoto()) {
+      let vid = document.createElement('video');
+      vid.loop = vid.muted = vid.autoplay = true;
+      vid.poster = this.url;
+      vid.style.position = 'fixed';
+      vid.style.height = height + 'px';
+      vid.style.width = width + 'px';
+      vid.style.top = (screen.height - height) / 2 + 'px';
+      vid.style.left = (screen.width - width) / 2 + 'px';
+      vid.src = this.createVideoUrl();
+      image.parentNode!.insertBefore(vid, image);
+      image.parentNode!.removeChild(image);
+    }
+    else {
+      // set image size
+      image.height = height;
+      image.width = width;
+      img.style.height = height + 'px';
+      img.style.width = width + 'px';
+      image.style.top = (screen.height - height) / 2 + 'px';
+      image.style.left = (screen.width - width) / 2 + 'px';
+    }
 
     // position other elements
+    const dateStyle = this.date.style;
+    const authorStyle = this.author.style;
+    const locationStyle = this.location.style;
+    const creationDateStyle = this.creationDate.style;
+    const timeStyle = this.time.style;
+    const weatherStyle = this.weather.style;
+
     dateStyle.textAlign = 'right';
     authorStyle.textAlign = 'left';
     locationStyle.textAlign = 'left';
