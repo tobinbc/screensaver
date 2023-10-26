@@ -1,5 +1,8 @@
 ## Photo Screen Saver Chrome Extension
 
+### About THIS repository
+I have been using the original version of this for years and it has brought me much joy. It would appear that the original author has likely passed away during COVID and the extension was subsequently removed from the appstore. As it's brought me so much joy reliving memories I have taken the most advanced fork and republished it in the Chrome Extension Store as free to use.
+
 ### About this repository
 
 I wanted a screensaver that displayed photos from an album in Google Photos.
