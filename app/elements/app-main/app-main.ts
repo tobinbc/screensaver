@@ -12,7 +12,7 @@
  *  https://opensource.org/licenses/BSD-3-Clause
  *  https://github.com/opus1269/screensaver/blob/master/LICENSE.md
  */
-
+import '../../node_modules/chrome-ext-utils/src/ex_handler.js';
 import {AppDrawerLayoutElement} from '../../node_modules/@polymer/app-layout/app-drawer-layout/app-drawer-layout';
 import {AppDrawerElement} from '../../node_modules/@polymer/app-layout/app-drawer/app-drawer';
 import {NeonAnimatedPagesElement} from '../../node_modules/@polymer/neon-animation/neon-animated-pages';
@@ -20,8 +20,8 @@ import {PaperDialogElement} from '../../node_modules/@polymer/paper-dialog/paper
 import {PaperListboxElement} from '../../node_modules/@polymer/paper-listbox/paper-listbox';
 import {PolymerElementConstructor} from '../../node_modules/@polymer/polymer/interfaces';
 
-import {ConfirmDialogElement} from '../../node_modules/@opus1269/common-custom-elements/src/confirm-dialog/confirm-dialog';
-import {ErrorDialogElement} from '../../node_modules/@opus1269/common-custom-elements/src/error-dialog/error-dialog';
+import {ConfirmDialogElement} from '../../node_modules/common-custom-elements/src/confirm-dialog/confirm-dialog';
+import {ErrorDialogElement} from '../../node_modules/common-custom-elements/src/error-dialog/error-dialog';
 
 import {
   computed,
@@ -60,25 +60,25 @@ import '../../node_modules/@polymer/app-layout/app-toolbar/app-toolbar.js';
 import '../../node_modules/@polymer/app-storage/app-localstorage/app-localstorage-document.js';
 
 import {BasePageElement} from '../../elements/pages/base-page/base-page.js';
-import {BaseElement} from '../../node_modules/@opus1269/common-custom-elements/src/base-element/base-element.js';
+import {BaseElement} from '../../node_modules/common-custom-elements/src/base-element/base-element.js';
 
 import {ErrorPageElement} from '../../elements/pages/error-page/error-page.js';
 import {GooglePhotosPageElement} from '../../elements/pages/google-photos-page/google-photos-page.js';
 import {HelpPageElement} from '../../elements/pages/help-page/help-page.js';
 import {SettingsPageElement} from '../../elements/pages/settings-page/settings-page.js';
 
-import '../../node_modules/@opus1269/common-custom-elements/src/confirm-dialog/confirm-dialog.js';
-import '../../node_modules/@opus1269/common-custom-elements/src/error-dialog/error-dialog.js';
+import '../../node_modules/common-custom-elements/src/confirm-dialog/confirm-dialog.js';
+import '../../node_modules/common-custom-elements/src/error-dialog/error-dialog.js';
 
 import '../../elements/my_icons.js';
 
-import * as ChromeGA from '../../node_modules/@opus1269/chrome-ext-utils/src/analytics.js';
-import {ChromeLastError} from '../../node_modules/@opus1269/chrome-ext-utils/src/last_error.js';
-import * as ChromeLocale from '../../node_modules/@opus1269/chrome-ext-utils/src/locales.js';
-import * as ChromeLog from '../../node_modules/@opus1269/chrome-ext-utils/src/log.js';
-import * as ChromeMsg from '../../node_modules/@opus1269/chrome-ext-utils/src/msg.js';
-import * as ChromeStorage from '../../node_modules/@opus1269/chrome-ext-utils/src/storage.js';
-import * as ChromeUtils from '../../node_modules/@opus1269/chrome-ext-utils/src/utils.js';
+import * as ChromeGA from '../../node_modules/chrome-ext-utils/src/analytics.js';
+import {ChromeLastError} from '../../node_modules/chrome-ext-utils/src/last_error.js';
+import * as ChromeLocale from '../../node_modules/chrome-ext-utils/src/locales.js';
+import * as ChromeLog from '../../node_modules/chrome-ext-utils/src/log.js';
+import * as ChromeMsg from '../../node_modules/chrome-ext-utils/src/msg.js';
+import * as ChromeStorage from '../../node_modules/chrome-ext-utils/src/storage.js';
+import * as ChromeUtils from '../../node_modules/chrome-ext-utils/src/utils.js';
 
 import * as MyGA from '../../scripts/my_analytics.js';
 import * as MyMsg from '../../scripts/my_msg.js';
@@ -343,13 +343,13 @@ export class AppMainElement extends BaseElement {
    * Called during Polymer-specific element initialization.
    * Called once, the first time the element is attached to the document.
    */
-  public ready() {
+  public async ready() {
     super.ready();
 
     MyGA.initialize();
     ChromeGA.page('/options.html');
 
-    AppMainElement.setColors(ChromeStorage.get('darkMode', false));
+    AppMainElement.setColors(await ChromeStorage.asyncGet('darkMode', false));
 
     setTimeout(async () => {
       // set settings-page el
@@ -580,9 +580,9 @@ export class AppMainElement extends BaseElement {
   }
 
   /** Show the Google Photos page */
-  protected showGooglePhotosPage() {
+  protected async showGooglePhotosPage() {
     // make sure were singed in Chrome
-    const signedInToChrome = ChromeStorage.get('signedInToChrome', true);
+    const signedInToChrome = await ChromeStorage.asyncGet('signedInToChrome', true);
     if (!signedInToChrome) {
       const title = ChromeLocale.localize('err_chrome_signin_title');
       const text = ChromeLocale.localize('err_chrome_signin');

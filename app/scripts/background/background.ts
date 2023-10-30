@@ -14,10 +14,6 @@
  *  https://github.com/opus1269/screensaver/blob/master/LICENSE.md
  */
 
-// @ts-ignore - only available in browser and types are unhappy
-importScripts(
-  '../../lib/Snoocore-browser.min.js',
-  '../../node_modules/chrome-ext-utils/src/ex_handler.js');
 
 import * as ChromeGA from '../../node_modules/chrome-ext-utils/src/analytics.js';
 import * as ChromeMsg from '../../node_modules/chrome-ext-utils/src/msg.js';
@@ -78,8 +74,8 @@ async function onInstalled(details: chrome.runtime.InstalledDetails) {
 
   } else if (details.reason === 'update') {
     // extension updated
-
-    if (!ChromeUtils.DEBUG) {
+    const DEBUG = await ChromeStorage.asyncGet('isDevelopmentBuild', false);
+    if (!DEBUG) {
       const oldVer = details.previousVersion;
       const version = ChromeUtils.getVersion();
       if (version === oldVer) {
@@ -167,7 +163,7 @@ async function onIconClicked() {
  * @returns true if asynchronous
  * @event
  */
-function onChromeMessage(
+async function onChromeMessage(
   request: ChromeMsg.IMsgType,
   sender: chrome.runtime.MessageSender,
   response: ChromeMsg.ResponseCB,
@@ -180,7 +176,7 @@ function onChromeMessage(
     }).catch(() => { });
   } else if (request.message === ChromeMsg.TYPE.STORE.message) {
     if (request.key) {
-      ChromeStorage.set(request.key, request.value);
+      await ChromeStorage.asyncSet(request.key, request.value);
       response({ message: 'OK' });
     }
   } else if (request.message === MyMsg.TYPE.LOAD_FILTERED_PHOTOS.message) {
@@ -226,7 +222,7 @@ function onChromeMessage(
 }
 
 // initialize Google Analytics
-MyGA.initialize();
+// MyGA.initialize();
 
 // listen for extension install or update
 chrome.runtime.onInstalled.addListener(onInstalled);
@@ -235,7 +231,7 @@ chrome.runtime.onInstalled.addListener(onInstalled);
 chrome.runtime.onStartup.addListener(onStartup);
 
 // listen for click on the icon
-chrome.browserAction.onClicked.addListener(onIconClicked);
+chrome.action.onClicked.addListener(onIconClicked);
 
 // listen for changes to the stored data
 // window.addEventListener('storage', onLocalStorageChanged, false);

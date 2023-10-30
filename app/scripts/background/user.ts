@@ -36,7 +36,7 @@ async function onSignInChanged(account: chrome.identity.AccountInfo, signedIn: b
       return;
     }
 
-    ChromeStorage.set('signedInToChrome', signedIn);
+    await ChromeStorage.asyncSet('signedInToChrome', signedIn);
 
     // remove Google Photo selections
     try {
@@ -46,12 +46,12 @@ async function onSignInChanged(account: chrome.identity.AccountInfo, signedIn: b
       ChromeGA.error(err.message, 'User.onSignInChanged');
     }
 
-    const type = ChromeStorage.get('permPicasa', 'notSet');
+    const type = await ChromeStorage.asyncGet('permPicasa', 'notSet');
     if (type === 'allowed') {
       ChromeLog.error(ChromeLocale.localize('err_chrome_signout'), 'User.onSignInChanged');
     }
   } else {
-    ChromeStorage.set('signedInToChrome', signedIn);
+    await ChromeStorage.asyncSet('signedInToChrome', signedIn);
   }
 }
 

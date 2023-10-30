@@ -17,7 +17,6 @@
   "homepage": "https://github.com/opus1269/screensaver",
   "private": true,
   "dependencies": {
-    "@opus1269/common-custom-elements": "github:opus1269/common-custom-elements#v1.5.0",
     "@polymer/app-layout": "^3.0.2",
     "@polymer/app-storage": "^3.0.2",
     "@polymer/decorators": "^3.0.0",
@@ -48,11 +47,11 @@
     "@polymer/paper-tooltip": "^3.0.1",
     "@polymer/polymer": "^3.2.0",
     "@webcomponents/webcomponentsjs": "^2.2.10",
+    "common-custom-elements": "github:tobinbc/common-custom-elements",
     "face-api.js": "^0.19.0",
     "web-animations-js": "^2.3.1"
   },
   "devDependencies": {
-    "chrome-ext-utils": "github:tobinbc/chrome-ext-utils",
-    "common-custom-elements": "github:opus1269/common-custom-elements"
+    "chrome-ext-utils": "github:tobinbc/chrome-ext-utils"
   }
 }

@@ -13,17 +13,17 @@
  *  https://github.com/opus1269/screensaver/blob/master/LICENSE.md
  */
 
-import {NeonAnimatedPagesElement} from '../../node_modules/@polymer/neon-animation/neon-animated-pages';
-import {DomRepeat} from '../../node_modules/@polymer/polymer/lib/elements/dom-repeat';
+import { NeonAnimatedPagesElement } from '../../node_modules/@polymer/neon-animation/neon-animated-pages';
+import { DomRepeat } from '../../node_modules/@polymer/polymer/lib/elements/dom-repeat';
 
-import {TIME_FORMAT} from '../../node_modules/@opus1269/chrome-ext-utils/src/time';
+import { TIME_FORMAT } from '../../node_modules/chrome-ext-utils/src/time';
 
-import {SSPhoto} from '../../scripts/screensaver/ss_photo';
-import {IPhoto} from '../../scripts/sources/photo_source';
-import {ScreensaverSlideElement} from '../screensaver-slide/screensaver-slide';
+import { SSPhoto } from '../../scripts/screensaver/ss_photo';
+import { IPhoto } from '../../scripts/sources/photo_source';
+import { ScreensaverSlideElement } from '../screensaver-slide/screensaver-slide';
 
-import {customElement, property, query} from '../../node_modules/@polymer/decorators/lib/decorators.js';
-import {html} from '../../node_modules/@polymer/polymer/polymer-element.js';
+import { customElement, property, query } from '../../node_modules/@polymer/decorators/lib/decorators.js';
+import { html } from '../../node_modules/@polymer/polymer/polymer-element.js';
 
 import '../../node_modules/@polymer/font-roboto/roboto.js';
 
@@ -33,16 +33,16 @@ import '../../node_modules/@polymer/neon-animation/neon-animatable.js';
 import '../../node_modules/@polymer/neon-animation/neon-animated-pages.js';
 import '../../node_modules/@polymer/neon-animation/neon-animations.js';
 
-import {BaseElement} from '../../node_modules/@opus1269/common-custom-elements/src/base-element/base-element.js';
+import { BaseElement } from '../../node_modules/common-custom-elements/src/base-element/base-element.js';
 
 import '../../elements/screensaver-slide/screensaver-slide.js';
 
-import * as ChromeGA from '../../node_modules/@opus1269/chrome-ext-utils/src/analytics.js';
-import * as ChromeLog from '../../node_modules/@opus1269/chrome-ext-utils/src/log.js';
-import * as ChromeMsg from '../../node_modules/@opus1269/chrome-ext-utils/src/msg.js';
-import * as ChromeStorage from '../../node_modules/@opus1269/chrome-ext-utils/src/storage.js';
-import {ChromeTime} from '../../node_modules/@opus1269/chrome-ext-utils/src/time.js';
-import * as ChromeUtils from '../../node_modules/@opus1269/chrome-ext-utils/src/utils.js';
+import * as ChromeGA from '../../node_modules/chrome-ext-utils/src/analytics.js';
+import * as ChromeLog from '../../node_modules/chrome-ext-utils/src/log.js';
+import * as ChromeMsg from '../../node_modules/chrome-ext-utils/src/msg.js';
+import * as ChromeStorage from '../../node_modules/chrome-ext-utils/src/storage.js';
+import { ChromeTime } from '../../node_modules/chrome-ext-utils/src/time.js';
+import * as ChromeUtils from '../../node_modules/chrome-ext-utils/src/utils.js';
 
 import * as MyGA from '../../scripts/my_analytics.js';
 import * as MyMsg from '../../scripts/my_msg.js';
@@ -54,7 +54,7 @@ import * as SSHistory from '../../scripts/screensaver/ss_history.js';
 import * as SSPhotos from '../../scripts/screensaver/ss_photos.js';
 import * as SSRunner from '../../scripts/screensaver/ss_runner.js';
 import * as PhotoSourceFactory from '../../scripts/sources/photo_source_factory.js';
-import {GoogleSource} from '../../scripts/sources/photo_source_google.js';
+import { GoogleSource } from '../../scripts/sources/photo_source_google.js';
 
 /** Slide transition animation type */
 export const enum TRANS_TYPE {
@@ -97,8 +97,8 @@ const errHandler = {
 export class ScreensaverElement extends BaseElement {
 
   /** Get slide appearance */
-  protected static getViewType() {
-    let type = ChromeStorage.get('photoSizing', VIEW_TYPE.LETTERBOX);
+  protected static async getViewType() {
+    let type = await ChromeStorage.asyncGet('photoSizing', VIEW_TYPE.LETTERBOX);
     if (type === VIEW_TYPE.RANDOM) {
       // pick random sizing
       type = ChromeUtils.getRandomInt(0, VIEW_TYPE.RANDOM - 1);
@@ -107,8 +107,8 @@ export class ScreensaverElement extends BaseElement {
   }
 
   /** Get between photo's animation */
-  protected static getAniType() {
-    let type = ChromeStorage.get('photoTransition', TRANS_TYPE.FADE);
+  protected static async getAniType() {
+    let type = await ChromeStorage.asyncGet('photoTransition', TRANS_TYPE.FADE);
     if (type === TRANS_TYPE.RANDOM) {
       // pick random transition
       type = ChromeUtils.getRandomInt(0, TRANS_TYPE.RANDOM - 1);
@@ -134,7 +134,7 @@ export class ScreensaverElement extends BaseElement {
    * @throws An error if failed to initialize face-api.js
    */
   protected static async setupFaceDetect() {
-    const panAndZoom = ChromeStorage.get('panAndScan', false);
+    const panAndZoom = await ChromeStorage.asyncGet('panAndScan', false);
     if (panAndZoom) {
       await FaceDetect.initialize();
     }
@@ -149,31 +149,31 @@ export class ScreensaverElement extends BaseElement {
   protected readonly MAX_SLIDES = 25;
 
   /** Array of {@link SSPhoto} in the views */
-  @property({type: Array})
+  @property({ type: Array })
   protected photos: SSPhoto[] = [];
 
   /** Type for between photo animation */
-  @property({type: Number})
+  @property({ type: Number })
   protected readonly aniType = ScreensaverElement.getAniType();
 
   /** Type for photo appearance */
-  @property({type: Number})
+  @property({ type: Number })
   protected readonly viewType = ScreensaverElement.getViewType();
 
   /** Flag to indicate if slideshow is paused */
-  @property({type: Boolean, observer: 'pausedChanged'})
+  @property({ type: Boolean, observer: 'pausedChanged' })
   protected paused = false;
 
   /** Flag to indicate if we have no valid photos */
-  @property({type: Boolean})
+  @property({ type: Boolean })
   protected noPhotos = false;
 
   /** Label for current time */
-  @property({type: String})
+  @property({ type: String })
   protected timeLabel = '';
 
   /** Label for current date */
-  @property({type: String})
+  @property({ type: String })
   protected dateLabel = '';
 
   /** Slide repeat template */
@@ -217,8 +217,8 @@ export class ScreensaverElement extends BaseElement {
     super.ready();
 
     // set selected background image
-    document.body.style.background = ChromeStorage.get('background',
-        'background:linear-gradient(to bottom, #3a3a3a, #b5bdc8)').substring(11);
+    document.body.style.background = (await ChromeStorage.asyncGet('background',
+      'background:linear-gradient(to bottom, #3a3a3a, #b5bdc8)')).substring(11);
 
     MyGA.initialize();
     ChromeGA.page('/screensaver.html');
@@ -231,7 +231,7 @@ export class ScreensaverElement extends BaseElement {
     const METHOD = 'SS.launch';
     try {
       // load all the photos
-      const shuffle = ChromeStorage.get('shuffle', false);
+      const shuffle = await ChromeStorage.asyncGet('shuffle', false);
       const hasPhotos = await SSPhotos.loadPhotos(shuffle);
       if (!hasPhotos) {
         this.setNoPhotos();
@@ -262,16 +262,16 @@ export class ScreensaverElement extends BaseElement {
       }
 
       // send msg to update weather. don't wait can be slow
-      ChromeMsg.send(MyMsg.TYPE.UPDATE_WEATHER).catch(() => {});
+      ChromeMsg.send(MyMsg.TYPE.UPDATE_WEATHER).catch(() => { });
 
       // set date label
       this.setDateLabel();
 
       // set time label timer
-      this.setupTime();
+      await this.setupTime();
 
       // kick off the slide show
-      SSRunner.start(this.delayTime);
+      await SSRunner.start(this.delayTime);
     } catch (err) {
       ChromeLog.error(err.message, METHOD);
       this.setNoPhotos();
@@ -427,19 +427,19 @@ export class ScreensaverElement extends BaseElement {
   }
 
   /** Setup timer for time label */
-  protected setupTime() {
-    const showTime = ChromeStorage.get('showTime', TIME_FORMAT.NONE);
+  protected async setupTime() {
+    const showTime = await ChromeStorage.asyncGet('showTime', TIME_FORMAT.NONE);
     if (showTime !== TIME_FORMAT.NONE) {
-      this.setTimeLabel();
+      await this.setTimeLabel();
       // update current time once a minute
       setInterval(this.setTimeLabel.bind(this), 61 * 1000);
     }
   }
 
   /** Set the time label */
-  protected setTimeLabel() {
+  protected async setTimeLabel() {
     let label = '';
-    const showTime = ChromeStorage.get('showTime', TIME_FORMAT.NONE);
+    const showTime = await ChromeStorage.asyncGet('showTime', TIME_FORMAT.NONE);
     if ((showTime !== TIME_FORMAT.NONE)) {
       label = ChromeTime.getStringShort(showTime);
       this.set('timeLabel', label);
@@ -449,12 +449,12 @@ export class ScreensaverElement extends BaseElement {
   /** Set the date label */
   protected setDateLabel() {
     const label = new Date().toLocaleDateString(
-        'hu-HU',
-        {
-          year: 'numeric',
-          month: 'numeric',
-          day: 'numeric',
-        });
+      'hu-HU',
+      {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+      });
     this.set('dateLabel', label);
   }
 
@@ -585,7 +585,7 @@ export class ScreensaverElement extends BaseElement {
           // If we can make a cors request, fetch again and check status.
           // If it is not a 403 error, return;
           try {
-            const response = await fetch(url, {method: 'get'});
+            const response = await fetch(url, { method: 'get' });
             const status = response.status;
             if (status !== 403) {
               // some other problem, don't know how to fix it
@@ -600,7 +600,7 @@ export class ScreensaverElement extends BaseElement {
         }
 
         // Calculate an hours worth of photos max
-        const transValue = ChromeStorage.get('transitionTime', {base: 30, display: 30, unit: 0});
+        const transValue = await ChromeStorage.asyncGet('transitionTime', { base: 30, display: 30, unit: 0 });
         const transTime = transValue.base * 1000;
         let nPhotos = Math.round(ChromeTime.MSEC_IN_HOUR / transTime);
         // do at least 50, still one rpc. will help when displaying

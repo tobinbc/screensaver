@@ -15,7 +15,7 @@
 
 import { IronImageElement } from '../../node_modules/@polymer/iron-image/iron-image';
 
-import { TIME_FORMAT } from '../../node_modules/@opus1269/chrome-ext-utils/src/time';
+import { TIME_FORMAT } from '../../node_modules/chrome-ext-utils/src/time';
 
 import { SSPhoto } from '../../scripts/screensaver/ss_photo';
 import { TRANS_TYPE, VIEW_TYPE } from '../screensaver-element/screensaver-element';
@@ -41,14 +41,14 @@ import '../../elements/animations/spin-down-animation/spin-down-animation.js';
 import '../../elements/animations/spin-up-animation/spin-up-animation.js';
 import '../../elements/weather-element/weather-element.js';
 
-import { BaseElement } from '../../node_modules/@opus1269/common-custom-elements/src/base-element/base-element.js';
+import { BaseElement } from '../../node_modules/common-custom-elements/src/base-element/base-element.js';
 
 import { WeatherElement } from '../weather-element/weather-element';
 
-import * as ChromeGA from '../../node_modules/@opus1269/chrome-ext-utils/src/analytics.js';
-import * as ChromeLocale from '../../node_modules/@opus1269/chrome-ext-utils/src/locales.js';
-import * as ChromeStorage from '../../node_modules/@opus1269/chrome-ext-utils/src/storage.js';
-import * as ChromeUtils from '../../node_modules/@opus1269/chrome-ext-utils/src/utils.js';
+import * as ChromeGA from '../../node_modules/chrome-ext-utils/src/analytics.js';
+import * as ChromeLocale from '../../node_modules/chrome-ext-utils/src/locales.js';
+import * as ChromeStorage from '../../node_modules/chrome-ext-utils/src/storage.js';
+import * as ChromeUtils from '../../node_modules/chrome-ext-utils/src/utils.js';
 
 import * as Permissions from '../../scripts/permissions.js';
 import * as FaceDetect from '../../scripts/screensaver/face_detect.js';
@@ -65,6 +65,17 @@ interface IRect {
 @customElement('screensaver-slide')
 export class ScreensaverSlideElement
   extends (mixinBehaviors([NeonAnimatableBehavior], BaseElement) as new () => BaseElement) {
+
+
+  constructor() {
+    super();
+    ChromeStorage.asyncGet('detectFaces', false).then((detectFaces) => {
+      this.detectFaces = detectFaces;
+    })
+    ChromeStorage.asyncGet('showPhotog', true).then((showPhotog) => {
+      this.showPhotog = showPhotog
+    })
+  }
 
   /**
    * Set style info for a label in a frame view
@@ -153,7 +164,11 @@ export class ScreensaverSlideElement
 
   /** Detect faces during photo animation flag */
   @property({ type: Boolean })
-  protected readonly detectFaces = ChromeStorage.get('detectFaces', false);
+  protected detectFaces = false
+
+  /** Show photographer label */
+  @property({ type: Boolean })
+  protected showPhotog = true
 
   /** The target rectangle for the photo animation when detecting faces */
   @property({ type: Object })
@@ -191,7 +206,7 @@ export class ScreensaverSlideElement
       let newType: string = type;
       const idx = type.search('User');
 
-      if (!ChromeStorage.get('showPhotog', true) && (idx !== -1)) {
+      if (!this.showPhotog && (idx !== -1)) {
         // don't show label for user's own photos, if requested
         return '';
       }
@@ -276,12 +291,12 @@ export class ScreensaverSlideElement
   /** Prep the photo for display */
   public async prep() {
 
-    if (ChromeStorage.get('largeTime', false)) {
+    if (await ChromeStorage.asyncGet('largeTime', false)) {
       this.time.style.fontSize = '8.5vh';
       this.time.style.fontWeight = '300';
     }
 
-    this.render();
+    await this.render();
 
     if (this.isAnimate) {
       await this.startAnimation();
@@ -388,7 +403,7 @@ export class ScreensaverSlideElement
   }
 
   /** Render the slide according to the view type */
-  protected render() {
+  protected async render() {
     switch (this.viewType) {
       case VIEW_TYPE.ZOOM:
         this.renderZoom();
@@ -397,7 +412,7 @@ export class ScreensaverSlideElement
         this.renderFull();
         break;
       case VIEW_TYPE.LETTERBOX:
-        this.renderLetterbox();
+        await this.renderLetterbox();
         break;
       case VIEW_TYPE.FRAME:
         this.renderFrame();
@@ -424,7 +439,7 @@ export class ScreensaverSlideElement
   }
 
   /** Render letterbox view type */
-  protected renderLetterbox() {
+  protected async renderLetterbox() {
     if (!this.photo) {
       return;
     }
@@ -505,7 +520,7 @@ export class ScreensaverSlideElement
     timeStyle.right = (right + 1) + 'vw';
     timeStyle.bottom = (bottom + 3.5) + 'vh';
 
-    const showTime = ChromeStorage.get('showTime', TIME_FORMAT.NONE);
+    const showTime = await ChromeStorage.asyncGet('showTime', TIME_FORMAT.NONE);
     if (showTime !== TIME_FORMAT.NONE) {
       // don't wrap date
       dateStyle.textOverflow = 'ellipsis';
@@ -711,12 +726,12 @@ export class ScreensaverSlideElement
         await this.setAnimationTarget();
       }
 
-      const transTime = ChromeStorage.get('transitionTime', { base: 30, display: 30, unit: 0 });
+      const transTime = await ChromeStorage.asyncGet('transitionTime', { base: 30, display: 30, unit: 0 });
       const aniTime = transTime.base * 1000;
       let delayTime = 1000;
 
       // hack for spinup animation since it is slower than the others
-      const photoTransition = ChromeStorage.get('photoTransition', TRANS_TYPE.FADE);
+      const photoTransition = await ChromeStorage.asyncGet('photoTransition', TRANS_TYPE.FADE);
       if (photoTransition === TRANS_TYPE.SPIN_UP) {
         delayTime = 2000;
       }

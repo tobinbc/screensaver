@@ -19,7 +19,7 @@ import * as ChromeStorage from '../../node_modules/chrome-ext-utils/src/storage.
 
 import * as MyMsg from '../../scripts/my_msg.js';
 
-import {Screensaver} from './screensaver.js';
+import { Screensaver } from './screensaver.js';
 import * as SSRunner from './ss_runner.js';
 
 /**
@@ -36,7 +36,7 @@ interface IMousePosition {
 /**
  * Starting mouse position
  */
-const _MOUSE_START: IMousePosition = {x: null, y: null};
+const _MOUSE_START: IMousePosition = { x: null, y: null };
 
 /**
  * Listen for events
@@ -84,7 +84,7 @@ export function removeListeners() {
  */
 function close() {
   // send message to other screen savers to close themselves
-  ChromeMsg.send(MyMsg.TYPE.SS_CLOSE).catch(() => {});
+  ChromeMsg.send(MyMsg.TYPE.SS_CLOSE).catch(() => { });
   setTimeout(() => {
     // delay a little to process events
     window.close();
@@ -99,17 +99,17 @@ function close() {
  * @param cmd - keyboard command
  * @event
  */
-function onKeyCommand(cmd: string) {
+async function onKeyCommand(cmd: string) {
   if (SSRunner.isStarted() && SSRunner.isInteractive()) {
     if (cmd === 'ss-toggle-paused') {
       ChromeGA.event(ChromeGA.EVENT.KEY_COMMAND, `${cmd}`);
-      SSRunner.togglePaused();
+      await SSRunner.togglePaused();
     } else if (cmd === 'ss-forward') {
       ChromeGA.event(ChromeGA.EVENT.KEY_COMMAND, `${cmd}`);
-      SSRunner.forward();
+      await SSRunner.forward();
     } else if (cmd === 'ss-back') {
       ChromeGA.event(ChromeGA.EVENT.KEY_COMMAND, `${cmd}`);
-      SSRunner.back();
+      await SSRunner.back();
     }
   }
 }
@@ -126,13 +126,16 @@ function onKeyCommand(cmd: string) {
  * @returns true if asynchronous
  * @event
  */
-function onChromeMessage(request: ChromeMsg.IMsgType, sender: chrome.runtime.MessageSender,
-                         response: ChromeMsg.ResponseCB) {
+function onChromeMessage(
+  request: ChromeMsg.IMsgType,
+  sender: chrome.runtime.MessageSender,
+  response: ChromeMsg.ResponseCB,
+) {
   if (request.message === MyMsg.TYPE.SS_CLOSE.message) {
     close();
   } else if (request.message === MyMsg.TYPE.SS_IS_SHOWING.message) {
     // let people know we are here
-    response({message: 'OK'});
+    response({ message: 'OK' });
   }
   return false;
 }
@@ -145,7 +148,7 @@ function onChromeMessage(request: ChromeMsg.IMsgType, sender: chrome.runtime.Mes
  * @param ev - KeyboardEvent
  * @event
  */
-function onKey(ev: KeyboardEvent) {
+async function onKey(ev: KeyboardEvent) {
   const keyName = ev.key;
   if (!SSRunner.isStarted() && !SSRunner.isInteractive()) {
     close();
@@ -153,13 +156,13 @@ function onKey(ev: KeyboardEvent) {
   }
   switch (keyName) {
     case ' ':
-      SSRunner.togglePaused();
+      await SSRunner.togglePaused();
       break;
     case 'ArrowLeft':
-      SSRunner.back();
+      await SSRunner.back();
       break;
     case 'ArrowRight':
-      SSRunner.forward();
+      await SSRunner.forward();
       break;
     case 'Alt':
     case 'Shift':
@@ -200,10 +203,10 @@ function onMouseMove(ev: MouseEvent) {
  *
  * @event
  */
-function onMouseClick() {
+async function onMouseClick() {
   if (SSRunner.isStarted()) {
     const photo = Screensaver.getSelectedPhoto();
-    const allowPhotoClicks = ChromeStorage.get('allowPhotoClicks', true);
+    const allowPhotoClicks = await ChromeStorage.asyncGet('allowPhotoClicks', true);
     if (allowPhotoClicks && photo) {
       photo.showSource();
     }

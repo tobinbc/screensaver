@@ -23,7 +23,7 @@ import * as ChromeStorage from '../../node_modules/chrome-ext-utils/src/storage.
 import * as MyGA from '../../scripts/my_analytics.js';
 import * as MyMsg from '../../scripts/my_msg.js';
 
-import {IPhoto, PhotoSource} from './photo_source.js';
+import { IPhoto, PhotoSource } from './photo_source.js';
 import * as PhotoSourceFactory from './photo_source_factory.js';
 
 /** A Google Photo Album */
@@ -104,18 +104,18 @@ const URL_BASE = 'https://photoslibrary.googleapis.com/v1/';
 
 /** Query for list of albums */
 const ALBUMS_QUERY =
-    '?pageSize=50&fields=nextPageToken,albums(id,title,mediaItemsCount,coverPhotoBaseUrl)';
+  '?pageSize=50&fields=nextPageToken,albums(id,title,mediaItemsCount,coverPhotoBaseUrl)';
 
 /** Only return stuff we use */
 const MEDIA_ITEMS_FIELDS =
-    'fields=nextPageToken,mediaItems(id,productUrl,baseUrl,description,mimeType,filename,' +
-    'mediaMetadata/creationTime,mediaMetadata/width,mediaMetadata/height)';
+  'fields=nextPageToken,mediaItems(id,productUrl,baseUrl,description,mimeType,filename,' +
+  'mediaMetadata/creationTime,mediaMetadata/width,mediaMetadata/height)';
 
 /** Only return stuff we use */
 const MEDIA_ITEMS_RESULTS_FIELDS =
-    'fields=mediaItemResults(status/code,mediaItem/id,mediaItem/productUrl,' +
-    'mediaItem/baseUrl,mediaItem/description,mediaItem/mimeType,mediaItem/filename,' +
-    'mediaItem/mediaMetadata/creationTime,mediaItem/mediaMetadata/width,mediaItem/mediaMetadata/height)';
+  'fields=mediaItemResults(status/code,mediaItem/id,mediaItem/productUrl,' +
+  'mediaItem/baseUrl,mediaItem/description,mediaItem/mimeType,mediaItem/filename,' +
+  'mediaItem/mediaMetadata/creationTime,mediaItem/mediaMetadata/width,mediaItem/mediaMetadata/height)';
 
 /** A source of photos from Google Photos */
 export class GoogleSource extends PhotoSource {
@@ -301,7 +301,7 @@ export class GoogleSource extends PhotoSource {
 
       const mediaItems: IMediaItem[] = response.mediaItems;
       if (mediaItems) {
-        const newPhotos = this.processPhotos(mediaItems, name);
+        const newPhotos = await this.processPhotos(mediaItems, name);
         photos = photos.concat(newPhotos);
       }
 
@@ -399,7 +399,7 @@ export class GoogleSource extends PhotoSource {
    * @returns The array of photos
    */
   public static async loadFilteredPhotos(force = false, notify = false) {
-    if (!force && !this.isFetch()) {
+    if (!force && !(await this.isFetch())) {
       // no need to change - save on api calls
       const curPhotos: IPhoto[] = await ChromeStorage.asyncGet('googleImages', []);
       return curPhotos;
@@ -411,10 +411,10 @@ export class GoogleSource extends PhotoSource {
 
     // filter for photo selections
     let filters;
-    if (ChromeStorage.get('googlePhotosNoFilter', false)) {
+    if (await ChromeStorage.asyncGet('googlePhotosNoFilter', false)) {
       filters = this.NO_FILTER;
     } else {
-      filters = ChromeStorage.get('googlePhotosFilter', this.DEF_FILTER);
+      filters = await ChromeStorage.asyncGet('googlePhotosFilter', this.DEF_FILTER);
     }
 
     const body = {
@@ -452,7 +452,7 @@ export class GoogleSource extends PhotoSource {
         let response = await ChromeHttp.doPost(url, conf);
         response = response || {};
 
-        const photos = this.processPhotos(response.mediaItems);
+        const photos = await this.processPhotos(response.mediaItems);
         if (photos.length > 0) {
           newPhotos = newPhotos.concat(photos);
         }
@@ -472,7 +472,7 @@ export class GoogleSource extends PhotoSource {
     }
 
     ChromeGA.event(MyGA.EVENT.LOAD_FILTERED_PHOTOS,
-        `nPhotos: ${newPhotos.length}`);
+      `nPhotos: ${newPhotos.length}`);
 
     return newPhotos;
   }
@@ -524,7 +524,7 @@ export class GoogleSource extends PhotoSource {
           mediaItems.push(mediaItemResult.mediaItem);
         }
       }
-      const newPhotos = this.processPhotos(mediaItems, '');
+      const newPhotos = await this.processPhotos(mediaItems, '');
       photos = photos.concat(newPhotos);
 
       if (stop === ids.length) {
@@ -537,7 +537,7 @@ export class GoogleSource extends PhotoSource {
     } while (!done);
 
     ChromeGA.event(MyGA.EVENT.LOAD_PHOTOS,
-        `nPhotos: ${photos.length}, nCalls: ${nCalls}`);
+      `nPhotos: ${photos.length}, nCalls: ${nCalls}`);
 
     return photos;
   }
@@ -557,12 +557,12 @@ export class GoogleSource extends PhotoSource {
       return ret;
     }
 
-    const useAlbums = ChromeStorage.get('useGoogleAlbums', false);
+    const useAlbums = await ChromeStorage.asyncGet('useGoogleAlbums', false);
     if (useAlbums) {
       ret = await GoogleSource.updateAlbumsBaseUrls(photos);
     }
 
-    const usePhotos = ChromeStorage.get('useGooglePhotos', false);
+    const usePhotos = await ChromeStorage.asyncGet('useGooglePhotos', false);
     if (usePhotos) {
       ret = await GoogleSource.updatePhotosBaseUrls(photos);
     }
@@ -610,7 +610,7 @@ export class GoogleSource extends PhotoSource {
     if (!set) {
       ret = false;
       ChromeLog.error(ChromeLocale.localize('err_storage_title'),
-          'GoogleSource._updateAlbumsBaseUrls');
+        'GoogleSource._updateAlbumsBaseUrls');
     }
 
     return ret;
@@ -652,22 +652,22 @@ export class GoogleSource extends PhotoSource {
     if (!set) {
       ret = false;
       ChromeLog.error(ChromeLocale.localize('err_storage_title'),
-          'GoogleSource._updatePhotosBaseUrls');
+        'GoogleSource._updatePhotosBaseUrls');
     }
 
     return ret;
   }
 
   /** Return true if we should be fetching from Google: trying to minimize Google Photos API usage */
-  private static isFetch() {
+  private static async isFetch() {
     /* only fetch new photos if all are true:
      api is authorized
      screensaver is enabled
      using google photos
      */
-    const auth = ChromeStorage.get('permPicasa', 'notSet') === 'allowed';
-    const enabled = ChromeStorage.get('enabled', true);
-    const useGoogle = ChromeStorage.get('useGoogle', true);
+    const auth = await ChromeStorage.asyncGet('permPicasa', 'notSet') === 'allowed';
+    const enabled = await ChromeStorage.asyncGet('enabled', true);
+    const useGoogle = await ChromeStorage.asyncGet('useGoogle', true);
     return auth && enabled && useGoogle;
   }
 
@@ -678,7 +678,7 @@ export class GoogleSource extends PhotoSource {
    * @returns Array of albums
    */
   private static async fetchAlbums() {
-    if (!this.isFetch()) {
+    if (!(await this.isFetch())) {
       // no need to change - save on api calls
       const curAlbums: ISelectedAlbum[] = await ChromeStorage.asyncGet('albumSelections', []);
       return curAlbums;
@@ -704,11 +704,11 @@ export class GoogleSource extends PhotoSource {
    */
   private static isImage(mediaItem: IMediaItem) {
     return mediaItem &&
-        mediaItem.mimeType &&
-        mediaItem.mimeType.startsWith('image/') &&
-        mediaItem.mediaMetadata &&
-        mediaItem.mediaMetadata.width &&
-        mediaItem.mediaMetadata.height;
+      mediaItem.mimeType &&
+      mediaItem.mimeType.startsWith('image/') &&
+      mediaItem.mediaMetadata &&
+      mediaItem.mediaMetadata.width &&
+      mediaItem.mediaMetadata.height;
   }
 
   /** Get the image size to retrieve
@@ -716,14 +716,14 @@ export class GoogleSource extends PhotoSource {
    * @param mediaMetadata - info on image
    * @returns image size
    */
-  private static getImageSize(mediaMetadata: IMediaMetaData) {
+  private static async getImageSize(mediaMetadata: IMediaMetaData) {
     const MAX_SIZE = 3500;
     const ret: ISize = {
       width: parseInt(mediaMetadata.width, 10),
       height: parseInt(mediaMetadata.height, 10),
     };
 
-    if (!ChromeStorage.get('fullResGoogle', false)) {
+    if (!await ChromeStorage.asyncGet('fullResGoogle', false)) {
       // limit size of image to download
       const max = Math.max(MAX_SIZE, ret.width, ret.height);
       if (max > MAX_SIZE) {
@@ -777,13 +777,13 @@ export class GoogleSource extends PhotoSource {
    * @param albumName - Album name
    * @returns photo or undefined
    */
-  private static processPhoto(mediaItem: IMediaItem, albumName: string) {
+  private static async processPhoto(mediaItem: IMediaItem, albumName: string) {
 
     if (mediaItem && mediaItem.mediaMetadata) {
       if (this.isImage(mediaItem)) {
 
         const mediaMetadata = mediaItem.mediaMetadata;
-        const size = this.getImageSize(mediaMetadata);
+        const size = await this.getImageSize(mediaMetadata);
         const width = size.width;
         const height = size.height;
 
@@ -798,15 +798,15 @@ export class GoogleSource extends PhotoSource {
             url: mediaItem.productUrl,
             location: description ? description.location : undefined,
             creationTime: new Date(mediaMetadata.creationTime)
-                .toLocaleDateString(
-                    'hu-HU',
-                    {
-                      year: 'numeric',
-                      month: 'numeric',
-                      day: 'numeric',
-                      hour: 'numeric',
-                      minute: 'numeric',
-                    }),
+              .toLocaleDateString(
+                'hu-HU',
+                {
+                  year: 'numeric',
+                  month: 'numeric',
+                  day: 'numeric',
+                  hour: 'numeric',
+                  minute: 'numeric',
+                }),
             filename: mediaItem.filename,
             width,
             height,
@@ -823,14 +823,14 @@ export class GoogleSource extends PhotoSource {
    * @param albumName - optional Album name
    * @returns An array of photos
    */
-  private static processPhotos(mediaItems: IMediaItem[], albumName = '') {
+  private static async processPhotos(mediaItems: IMediaItem[], albumName = '') {
     const photos: IPhoto[] = [];
     if (!mediaItems) {
       return photos;
     }
 
     for (const mediaItem of mediaItems) {
-      const photo = this.processPhoto(mediaItem, albumName);
+      const photo = await this.processPhoto(mediaItem, albumName);
       if (photo) {
         const asp = parseFloat(photo.asp);
         this.addPhoto(photos, photo.url, photo.author, asp, photo.ex, photo.point);
@@ -839,8 +839,16 @@ export class GoogleSource extends PhotoSource {
     return photos;
   }
 
-  public constructor(useKey: PhotoSourceFactory.UseKey, photosKey: string, type: PhotoSourceFactory.Type,
-                     desc: string, isLimited: boolean, isDaily: boolean, isArray: boolean, loadArg?: any) {
+  public constructor(
+    useKey: PhotoSourceFactory.UseKey,
+    photosKey: string,
+    type: PhotoSourceFactory.Type,
+    desc: string,
+    isLimited: boolean,
+    isDaily: boolean,
+    isArray: boolean,
+    loadArg?: any,
+  ) {
     super(useKey, photosKey, type, desc, isLimited, isDaily, isArray, loadArg);
   }
 

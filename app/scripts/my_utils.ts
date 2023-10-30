@@ -18,14 +18,14 @@ import * as ChromeUtils from '../node_modules/chrome-ext-utils/src/utils.js';
 
 /** Get our email address */
 export function getEmail() {
-  return 'photoscreensaver@gmail.com';
+  return 'tobin.chew89+photoscreensaver@gmail.com';
 }
 
 /** Get body for an email with basic extension info */
-export function getEmailBody() {
+export async function getEmailBody() {
   return `Extension version: ${ChromeUtils.getVersion()}\n`
-      + `Chrome version: ${ChromeUtils.getFullChromeVersion()}\n`
-      + `OS: ${ChromeStorage.get('os', 'unknown')}\n\n\n`;
+    + `Chrome version: ${ChromeUtils.getFullChromeVersion()}\n`
+    + `OS: ${await ChromeStorage.asyncGet('os', 'unknown')}\n\n\n`;
 }
 
 /**
@@ -44,14 +44,15 @@ export function getEmailUrl(subject: string, body: string) {
 
 /** Get our Github base path */
 export function getGithubPath() {
-  return 'https://github.com/opus1269/screensaver/';
+  return 'https://github.com/tobinbc/screensaver/';
 }
 
 /** Get our Github pages base path */
-export function getGithubPagesPath() {
-  if (ChromeUtils.DEBUG) {
+export async function getGithubPagesPath() {
+  const DEBUG = await ChromeStorage.asyncGet('isDevelopmentBuild', false);
+  if (DEBUG) {
     return 'http://127.0.0.1:4000/';
   } else {
-    return 'https://opus1269.github.io/screensaver/';
+    return 'https://tobinbc.github.io/screensaver/';
   }
 }

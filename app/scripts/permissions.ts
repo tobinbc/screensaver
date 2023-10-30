@@ -102,8 +102,8 @@ export const DETECT_FACES: IType = {
  * @param type - permission type
  * @returns true if notSet
  */
-export function notSet(type: IType) {
-  return ChromeStorage.get(type.name, STATE.notSet) === STATE.notSet;
+export async function notSet(type: IType) {
+  return await ChromeStorage.asyncGet(type.name, STATE.notSet) === STATE.notSet;
 }
 
 /**
@@ -112,8 +112,8 @@ export function notSet(type: IType) {
  * @param type - permission type
  * @returns true if allowed
  */
-export function isAllowed(type: IType) {
-  return ChromeStorage.get(type.name, STATE.notSet) === STATE.allowed;
+export async function isAllowed(type: IType) {
+  return await ChromeStorage.asyncGet(type.name, STATE.notSet) === STATE.allowed;
 }
 
 /**
@@ -133,7 +133,7 @@ export async function request(type: IType) {
   try {
 
     // special handling for GOOGLE_PHOTOS permission
-    if ((type === GOOGLE_PHOTOS) && isAllowed(type)) {
+    if ((type === GOOGLE_PHOTOS) && await isAllowed(type)) {
       // if we have been previously allowed, but don't have source origin,
       // remove it from the request so user is not prompted again
       const hasSourceOrigin = await hasGoogleSourceOrigin();

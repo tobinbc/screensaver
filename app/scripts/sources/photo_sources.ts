@@ -22,11 +22,11 @@ import * as PhotoSourceFactory from './photo_source_factory.js';
  *
  * @returns Array of sources
  */
-export function getSelectedSources() {
+export async function getSelectedSources() {
   const ret = [];
   const useKeyValues = getUseKeyValues();
   for (const useKeyValue of useKeyValues) {
-    const isSelected = ChromeStorage.get(useKeyValue, false);
+    const isSelected = await ChromeStorage.asyncGet(useKeyValue, false);
     if (isSelected) {
       const source = PhotoSourceFactory.create(useKeyValue);
       if (source) {
@@ -86,7 +86,7 @@ export async function process(useKey: PhotoSourceFactory.UseKey) {
  * @param doLimited - update sources with API limits too
  */
 export async function processAll(doLimited: boolean) {
-  const sources = getSelectedSources();
+  const sources = await getSelectedSources();
   for (const source of sources) {
     let skip = false;
     if (!doLimited && source.isLimited()) {
@@ -104,7 +104,7 @@ export async function processAll(doLimited: boolean) {
 
 /** Process all the selected photo sources that are to be updated daily */
 export async function processDaily() {
-  const sources = getSelectedSources();
+  const sources = await getSelectedSources();
   for (const source of sources) {
     if (source.isDaily()) {
       try {

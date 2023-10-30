@@ -13,8 +13,8 @@
  *  https://github.com/opus1269/screensaver/blob/master/LICENSE.md
  */
 
-import {computed, customElement, listen, property} from '../../../node_modules/@polymer/decorators/lib/decorators.js';
-import {html} from '../../../node_modules/@polymer/polymer/polymer-element.js';
+import { computed, customElement, listen, property } from '../../../node_modules/@polymer/decorators/lib/decorators.js';
+import { html } from '../../../node_modules/@polymer/polymer/polymer-element.js';
 
 import '../../../node_modules/@polymer/paper-button/paper-button.js';
 import '../../../node_modules/@polymer/paper-checkbox/paper-checkbox.js';
@@ -27,10 +27,10 @@ import '../../../node_modules/@polymer/paper-tooltip/paper-tooltip.js';
 
 import '../../../node_modules/@polymer/app-layout/app-toolbar/app-toolbar.js';
 
-import {BasePageElement} from '../base-page/base-page.js';
+import { BasePageElement } from '../base-page/base-page.js';
 
-import * as ChromeGA from '../../../node_modules/@opus1269/chrome-ext-utils/src/analytics.js';
-import {ChromeLastError} from '../../../node_modules/@opus1269/chrome-ext-utils/src/last_error.js';
+import * as ChromeGA from '../../../node_modules/chrome-ext-utils/src/analytics.js';
+import { ChromeLastError } from '../../../node_modules/chrome-ext-utils/src/last_error.js';
 
 import * as MyUtils from '../../../scripts/my_utils.js';
 
@@ -39,7 +39,7 @@ import * as MyUtils from '../../../scripts/my_utils.js';
 export class ErrorPageElement extends BasePageElement {
 
   /** Last error */
-  @property({type: Object})
+  @property({ type: Object })
   public lastError = new ChromeLastError();
 
   /** Stack trace */
@@ -101,14 +101,14 @@ export class ErrorPageElement extends BasePageElement {
    * @event
    */
   @listen('tap', 'email')
-  public onEmailTapped() {
-    let body = MyUtils.getEmailBody();
+  public async onEmailTapped() {
+    let body = await MyUtils.getEmailBody();
     body += `${this.lastError.title}\n\n${this.lastError.message}\n\n${this.lastError.stack}`;
     body += body + '\n\nPlease provide any additional info. on what led to the error.\n\n';
 
     const url = MyUtils.getEmailUrl('Last Error', body);
     ChromeGA.event(ChromeGA.EVENT.ICON, 'LastError email');
-    chrome.tabs.create({url: url});
+    chrome.tabs.create({ url: url });
   }
 
   /**
@@ -118,7 +118,7 @@ export class ErrorPageElement extends BasePageElement {
    */
   @listen('tap', 'remove')
   public onRemoveTapped() {
-    ChromeLastError.reset().catch(() => {});
+    ChromeLastError.reset().catch(() => { });
     ChromeGA.event(ChromeGA.EVENT.ICON, 'LastError delete');
   }
 

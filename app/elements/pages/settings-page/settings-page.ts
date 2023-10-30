@@ -13,8 +13,8 @@
  *  https://github.com/opus1269/screensaver/blob/master/LICENSE.md
  */
 
-import {TIME_FORMAT} from '../../../node_modules/@opus1269/chrome-ext-utils/src/time';
-import {SettingToggleElement} from '../../../node_modules/@opus1269/common-custom-elements/src/setting-elements/setting-toggle/setting-toggle';
+import { TIME_FORMAT } from '../../../node_modules/chrome-ext-utils/src/time';
+import { SettingToggleElement } from '../../../node_modules/common-custom-elements/src/setting-elements/setting-toggle/setting-toggle';
 
 import {
   computed,
@@ -23,7 +23,7 @@ import {
   property,
   query,
 } from '../../../node_modules/@polymer/decorators/lib/decorators.js';
-import {html} from '../../../node_modules/@polymer/polymer/polymer-element.js';
+import { html } from '../../../node_modules/@polymer/polymer/polymer-element.js';
 
 import '../../../node_modules/@polymer/iron-label/iron-label.js';
 import '../../../node_modules/@polymer/iron-pages/iron-pages.js';
@@ -39,23 +39,23 @@ import '../../../node_modules/@polymer/paper-tooltip/paper-tooltip.js';
 import '../../../node_modules/@polymer/app-layout/app-toolbar/app-toolbar.js';
 import '../../../node_modules/@polymer/app-storage/app-localstorage/app-localstorage-document.js';
 
-import {BasePageElement} from '../base-page/base-page.js';
+import { BasePageElement } from '../base-page/base-page.js';
 
 import '../../../elements/my_icons.js';
-import '../../../node_modules/@opus1269/common-custom-elements/src/setting-elements/setting-background/setting-background.js';
-import '../../../node_modules/@opus1269/common-custom-elements/src/setting-elements/setting-dropdown/setting-dropdown.js';
-import '../../../node_modules/@opus1269/common-custom-elements/src/setting-elements/setting-slider/setting-slider.js';
-import '../../../node_modules/@opus1269/common-custom-elements/src/setting-elements/setting-time/setting-time.js';
-import '../../../node_modules/@opus1269/common-custom-elements/src/setting-elements/setting-toggle/setting-toggle.js';
+import '../../../node_modules/common-custom-elements/src/setting-elements/setting-background/setting-background.js';
+import '../../../node_modules/common-custom-elements/src/setting-elements/setting-dropdown/setting-dropdown.js';
+import '../../../node_modules/common-custom-elements/src/setting-elements/setting-slider/setting-slider.js';
+import '../../../node_modules/common-custom-elements/src/setting-elements/setting-time/setting-time.js';
+import '../../../node_modules/common-custom-elements/src/setting-elements/setting-toggle/setting-toggle.js';
 
-import {AppMainElement} from '../../../elements/app-main/app-main.js';
+import { AppMainElement } from '../../../elements/app-main/app-main.js';
 
-import * as ChromeGA from '../../../node_modules/@opus1269/chrome-ext-utils/src/analytics.js';
-import * as ChromeJSON from '../../../node_modules/@opus1269/chrome-ext-utils/src/json.js';
-import * as ChromeLocale from '../../../node_modules/@opus1269/chrome-ext-utils/src/locales.js';
-import * as ChromeLog from '../../../node_modules/@opus1269/chrome-ext-utils/src/log.js';
-import * as ChromeMsg from '../../../node_modules/@opus1269/chrome-ext-utils/src/msg.js';
-import * as ChromeStorage from '../../../node_modules/@opus1269/chrome-ext-utils/src/storage.js';
+import * as ChromeGA from '../../../node_modules/chrome-ext-utils/src/analytics.js';
+import * as ChromeJSON from '../../../node_modules/chrome-ext-utils/src/json.js';
+import * as ChromeLocale from '../../../node_modules/chrome-ext-utils/src/locales.js';
+import * as ChromeLog from '../../../node_modules/chrome-ext-utils/src/log.js';
+import * as ChromeMsg from '../../../node_modules/chrome-ext-utils/src/msg.js';
+import * as ChromeStorage from '../../../node_modules/chrome-ext-utils/src/storage.js';
 
 import * as MyMsg from '../../../scripts/my_msg.js';
 import * as MyUtils from '../../../scripts/my_utils.js';
@@ -63,7 +63,7 @@ import * as Permissions from '../../../scripts/permissions.js';
 import * as PhotoSources from '../../../scripts/sources/photo_sources.js';
 import * as Weather from '../../../scripts/weather.js';
 
-import {Options} from '../../../scripts/options/options.js';
+import { Options } from '../../../scripts/options/options.js';
 
 /** Page tabs */
 const enum TAB {
@@ -97,31 +97,31 @@ export class SettingsPageElement extends BasePageElement {
   }
 
   /** Index of current tab */
-  @property({type: Number, notify: true})
+  @property({ type: Number, notify: true })
   public selectedTab = TAB.CONTROLS;
 
   /** Enabled state of screensaver flag */
-  @property({type: Boolean, notify: true})
+  @property({ type: Boolean, notify: true })
   public enabled = true;
 
   /** Index of time value to show on screensaver */
-  @property({type: Number, notify: true})
+  @property({ type: Number, notify: true })
   public showTimeValue = TIME_FORMAT.HR_12;
 
   /** Show current weather flag */
-  @property({type: Boolean, notify: true})
+  @property({ type: Boolean, notify: true })
   public showWeatherValue = false;
 
   /** "Ken Burns" effect animation flag */
-  @property({type: Boolean, notify: true})
+  @property({ type: Boolean, notify: true })
   public panAndScanValue = false;
 
   /** Index of temp unit to show on screensaver */
-  @property({type: Number, notify: true})
+  @property({ type: Number, notify: true })
   public weatherTempUnitValue = Weather.TEMP_UNIT.C;
 
   /** Wait time unit menu */
-  @property({type: Array})
+  @property({ type: Array })
   public readonly waitTimeUnits = [
     SettingsPageElement.getUnit('minutes', 1, 60, 1, 1),
     SettingsPageElement.getUnit('hours', 1, 24, 1, 60),
@@ -129,7 +129,7 @@ export class SettingsPageElement extends BasePageElement {
   ];
 
   /** Transition time unit menu */
-  @property({type: Array})
+  @property({ type: Array })
   public readonly transitionTimeUnits = [
     SettingsPageElement.getUnit('seconds', 10, 60, 1, 1),
     SettingsPageElement.getUnit('minutes', 1, 60, 1, 60),
@@ -138,7 +138,7 @@ export class SettingsPageElement extends BasePageElement {
   ];
 
   /** Photo sizing menu */
-  @property({type: Array})
+  @property({ type: Array })
   public readonly photoSizingMenu = [
     ChromeLocale.localize('menu_letterbox'),
     ChromeLocale.localize('menu_zoom'),
@@ -148,7 +148,7 @@ export class SettingsPageElement extends BasePageElement {
   ];
 
   /** Photo transition menu */
-  @property({type: Array})
+  @property({ type: Array })
   public readonly photoTransmissionMenu = [
     ChromeLocale.localize('menu_scale_up'),
     ChromeLocale.localize('menu_fade'),
@@ -162,7 +162,7 @@ export class SettingsPageElement extends BasePageElement {
   ];
 
   /** Time format menu */
-  @property({type: Array})
+  @property({ type: Array })
   public readonly timeFormatMenu = [
     ChromeLocale.localize('no'),
     ChromeLocale.localize('menu_12_hour'),
@@ -170,7 +170,7 @@ export class SettingsPageElement extends BasePageElement {
   ];
 
   /** Temperature unit menu */
-  @property({type: Array})
+  @property({ type: Array })
   public readonly tempUnitMenu = [
     '\u00b0C',
     '\u00b0F',
@@ -244,7 +244,7 @@ export class SettingsPageElement extends BasePageElement {
    * @event
    */
   @listen('tap', 'help')
-  public onHelpTapped() {
+  public async onHelpTapped() {
     ChromeGA.event(ChromeGA.EVENT.ICON, 'settingsHelp');
     let anchor = 'ss_controls';
     switch (this.selectedTab) {
@@ -260,8 +260,8 @@ export class SettingsPageElement extends BasePageElement {
       default:
         break;
     }
-    const url = `${MyUtils.getGithubPagesPath()}help/settings.html#${anchor}`;
-    chrome.tabs.create({url: url});
+    const url = `${await MyUtils.getGithubPagesPath()}help/settings.html#${anchor}`;
+    chrome.tabs.create({ url: url });
   }
 
   /**
@@ -291,7 +291,7 @@ export class SettingsPageElement extends BasePageElement {
    */
   @listen('tap', 'restore')
   public onRestoreDefaultsTapped() {
-    ChromeMsg.send(ChromeMsg.TYPE.RESTORE_DEFAULTS).catch(() => {});
+    ChromeMsg.send(ChromeMsg.TYPE.RESTORE_DEFAULTS).catch(() => { });
   }
 
   /**
@@ -311,19 +311,19 @@ export class SettingsPageElement extends BasePageElement {
    * @event
    */
   @listen('tap', 'allowBackground')
-  public onChromeBackgroundTapped() {
+  public async onChromeBackgroundTapped() {
     const METHOD = 'SettingsPage.onChromeBackgroundTapped';
     const ERR_TITLE = ChromeLocale.localize('err_optional_permissions');
     // this used to not be updated yet in Polymer 1
-    const isSet = ChromeStorage.get('allowBackground', false);
+    const isSet = await ChromeStorage.asyncGet('allowBackground', false);
     const perm = Permissions.BACKGROUND;
-    const isAllowed = Permissions.isAllowed(perm);
+    const isAllowed = await Permissions.isAllowed(perm);
     if (isSet && !isAllowed) {
       Permissions.request(perm).catch((err) => {
         ChromeLog.error(err.message, METHOD, ERR_TITLE);
       });
     } else if (!isSet && isAllowed) {
-      Permissions.remove(perm).catch(() => {});
+      Permissions.remove(perm).catch(() => { });
     }
   }
 
@@ -341,7 +341,7 @@ export class SettingsPageElement extends BasePageElement {
     const KEY = 'showCurrentWeather';
     const ALARM = MyMsg.TYPE.UPDATE_WEATHER_ALARM;
 
-    const isShow = ChromeStorage.get(KEY, false);
+    const isShow = await ChromeStorage.asyncGet(KEY, false);
 
     try {
       if (isShow) {
@@ -350,7 +350,7 @@ export class SettingsPageElement extends BasePageElement {
         // see if we have geolocation permission
         // @ts-ignore
         const permGeo = await navigator.permissions.query(
-            {name: 'geolocation'});
+          { name: 'geolocation' });
 
         if (permGeo.state === 'denied') {
           // user has denied it
@@ -427,7 +427,7 @@ export class SettingsPageElement extends BasePageElement {
     const PERM = Permissions.DETECT_FACES;
     const KEY = 'detectFaces';
 
-    const detectFaces = ChromeStorage.get(KEY, false);
+    const detectFaces = await ChromeStorage.asyncGet(KEY, false);
 
     try {
       if (detectFaces) {
@@ -480,7 +480,7 @@ export class SettingsPageElement extends BasePageElement {
     const PERM = Permissions.DETECT_FACES;
     const KEY = (ev.target as Element).id;
     const checked = ev.detail.value;
-    const detectFaces = ChromeStorage.get('detectFaces', false);
+    const detectFaces = await ChromeStorage.asyncGet('detectFaces', false);
 
     try {
       if (checked && detectFaces) {

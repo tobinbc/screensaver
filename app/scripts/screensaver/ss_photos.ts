@@ -16,10 +16,10 @@
 import * as ChromeGA from '../../node_modules/chrome-ext-utils/src/analytics.js';
 import * as ChromeUtils from '../../node_modules/chrome-ext-utils/src/utils.js';
 
-import {IPhoto, PhotoSource} from '../sources/photo_source.js';
+import { IPhoto, PhotoSource } from '../sources/photo_source.js';
 import * as PhotoSourceFactory from '../sources/photo_source_factory.js';
 import * as PhotoSources from '../sources/photo_sources.js';
-import {SSPhoto} from './ss_photo.js';
+import { SSPhoto } from './ss_photo.js';
 
 /** The array of photos */
 const PHOTOS: SSPhoto[] = [];
@@ -37,7 +37,7 @@ export async function loadPhotos(randomize: boolean) {
   let ret = true;
 
   try {
-    const sources = PhotoSources.getSelectedSources();
+    const sources = await PhotoSources.getSelectedSources();
 
     for (const source of sources) {
       await addFromSource(source);
@@ -47,7 +47,7 @@ export async function loadPhotos(randomize: boolean) {
       // No usable photos
       ret = false;
     } else if (randomize) {
-        shuffle();
+      shuffle();
     }
 
   } catch (err) {
@@ -198,7 +198,7 @@ async function addFromSource(photoSource: PhotoSource) {
   let ct = 0;
   for (const photo of sourcePhotos.photos) {
     const asp = parseFloat(photo.asp);
-    if (!SSPhoto.ignore(asp)) {
+    if (!(await SSPhoto.ignore(asp))) {
       const ssPhoto = new SSPhoto(ct, photo, sourceType);
       PHOTOS.push(ssPhoto);
       ct++;

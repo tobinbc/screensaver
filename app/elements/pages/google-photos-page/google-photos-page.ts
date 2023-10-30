@@ -43,9 +43,9 @@ import '../../../elements/my_icons.js';
 import './albums-view.js';
 import './photos-view.js';
 
-import * as ChromeGA from '../../../node_modules/@opus1269/chrome-ext-utils/src/analytics.js';
-import * as ChromeLocale from '../../../node_modules/@opus1269/chrome-ext-utils/src/locales.js';
-import * as ChromeStorage from '../../../node_modules/@opus1269/chrome-ext-utils/src/storage.js';
+import * as ChromeGA from '../../../node_modules/chrome-ext-utils/src/analytics.js';
+import * as ChromeLocale from '../../../node_modules/chrome-ext-utils/src/locales.js';
+import * as ChromeStorage from '../../../node_modules/chrome-ext-utils/src/storage.js';
 
 import * as MyUtils from '../../../scripts/my_utils.js';
 
@@ -176,10 +176,10 @@ export class GooglePhotosPageElement extends BasePageElement {
    * @event
    */
   @listen('tap', 'help')
-  public onHelpTapped() {
+  public async onHelpTapped() {
     ChromeGA.event(ChromeGA.EVENT.ICON, 'googlePhotosHelp');
     const anchor = this.isAlbumMode ? 'albums' : 'photos';
-    const url = `${MyUtils.getGithubPagesPath()}help/google_photos.html#${anchor}`;
+    const url = `${await MyUtils.getGithubPagesPath()}help/google_photos.html#${anchor}`;
     chrome.tabs.create({url: url});
   }
 

@@ -13,7 +13,7 @@
  *  https://github.com/opus1269/screensaver/blob/master/LICENSE.md
  */
 
-import {ISelectedAlbum} from './photo_source_google';
+import { ISelectedAlbum } from './photo_source_google';
 
 import * as ChromeLocale from '../../node_modules/chrome-ext-utils/src/locales.js';
 import * as ChromeLog from '../../node_modules/chrome-ext-utils/src/log.js';
@@ -51,7 +51,7 @@ export interface IPhotos {
 }
 
 /** The array of all the photo arrays from a {@link PhotoSource} */
-export interface IPhotosArray extends Array<IPhotos> {}
+export interface IPhotosArray extends Array<IPhotos> { }
 
 /** Base class for a source of photos for a {@link Screensaver} */
 export abstract class PhotoSource {
@@ -128,8 +128,15 @@ export abstract class PhotoSource {
    * @param isArray - Is the source an Array of photo Arrays
    * @param loadArg - optional arg for load function
    */
-  protected constructor(useKey: PhotoSourceFactory.UseKey, photosKey: string, type: PhotoSourceFactory.Type,
-                        desc: string, isLimited: boolean, isDaily: boolean, isArray: boolean, loadArg?: any) {
+  protected constructor(
+    useKey: PhotoSourceFactory.UseKey,
+    photosKey: string,
+    type: PhotoSourceFactory.Type,
+    desc: string,
+    isLimited: boolean,
+    isDaily: boolean,
+    isArray: boolean,
+    loadArg?: any) {
     this._useKey = useKey;
     this._photosKey = photosKey;
     this._type = type;
@@ -189,7 +196,7 @@ export abstract class PhotoSource {
       photos: [],
     };
 
-    if (this.use()) {
+    if (await this.use()) {
       let photos: IPhoto[] = [];
       if (this._isArray) {
         const items = await ChromeStorage.asyncGet<IPhotos[]>(this._photosKey, []);
@@ -209,8 +216,8 @@ export abstract class PhotoSource {
    *
    * @returns true if selected
    */
-  public use() {
-    return ChromeStorage.get<boolean>(this._useKey);
+  public async use() {
+    return await ChromeStorage.asyncGet<boolean>(this._useKey);
   }
 
   /**
@@ -219,7 +226,7 @@ export abstract class PhotoSource {
    * @throws An error if we failed to retrieve photos
    */
   public async process() {
-    if (this.use()) {
+    if (await this.use()) {
       // add the source
       try {
         const photos = await this.fetchPhotos();
@@ -238,7 +245,7 @@ export abstract class PhotoSource {
 
       // HACK so we don't delete album or photos when Google Photos
       // page is disabled
-      const useGoogle = ChromeStorage.get('useGoogle', true);
+      const useGoogle = await ChromeStorage.asyncGet('useGoogle', true);
       let isGoogleKey = false;
       if ((this._photosKey === 'albumSelections') || (this._photosKey === 'googleImages')) {
         isGoogleKey = true;

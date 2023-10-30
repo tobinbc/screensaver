@@ -11,7 +11,7 @@
  *  https://github.com/opus1269/screensaver/blob/master/LICENSE.md
  */
 
-import {PhotoCatElement} from './photo_cat';
+import { PhotoCatElement } from './photo_cat';
 
 import {
   computed,
@@ -20,7 +20,7 @@ import {
   observe,
   property,
 } from '../../../node_modules/@polymer/decorators/lib/decorators.js';
-import {html} from '../../../node_modules/@polymer/polymer/polymer-element.js';
+import { html } from '../../../node_modules/@polymer/polymer/polymer-element.js';
 
 import '../../../node_modules/@polymer/paper-button/paper-button.js';
 import '../../../node_modules/@polymer/paper-item/paper-item-body.js';
@@ -30,69 +30,69 @@ import '../../../node_modules/@polymer/paper-spinner/paper-spinner.js';
 
 import '../../../node_modules/@polymer/app-storage/app-localstorage/app-localstorage-document.js';
 
-import {BaseElement} from '../../../node_modules/@opus1269/common-custom-elements/src/base-element/base-element.js';
+import { BaseElement } from '../../../node_modules/common-custom-elements/src/base-element/base-element.js';
 
-import '../../../node_modules/@opus1269/common-custom-elements/src/setting-elements/setting-toggle/setting-toggle.js';
-import '../../../node_modules/@opus1269/common-custom-elements/src/waiter-element/waiter-element.js';
+import '../../../node_modules/common-custom-elements/src/setting-elements/setting-toggle/setting-toggle.js';
+import '../../../node_modules/common-custom-elements/src/waiter-element/waiter-element.js';
 
 import './photo_cat.js';
 
-import * as ChromeGA from '../../../node_modules/@opus1269/chrome-ext-utils/src/analytics.js';
-import * as ChromeLocale from '../../../node_modules/@opus1269/chrome-ext-utils/src/locales.js';
-import * as ChromeMsg from '../../../node_modules/@opus1269/chrome-ext-utils/src/msg.js';
-import * as ChromeStorage from '../../../node_modules/@opus1269/chrome-ext-utils/src/storage.js';
+import * as ChromeGA from '../../../node_modules/chrome-ext-utils/src/analytics.js';
+import * as ChromeLocale from '../../../node_modules/chrome-ext-utils/src/locales.js';
+import * as ChromeMsg from '../../../node_modules/chrome-ext-utils/src/msg.js';
+import * as ChromeStorage from '../../../node_modules/chrome-ext-utils/src/storage.js';
 
 import * as MyMsg from '../../../scripts/my_msg.js';
 import * as Permissions from '../../../scripts/permissions.js';
 
-import {Options} from '../../../scripts/options/options.js';
-import {GoogleSource} from '../../../scripts/sources/photo_source_google.js';
+import { Options } from '../../../scripts/options/options.js';
+import { GoogleSource } from '../../../scripts/sources/photo_source_google.js';
 
 /** Polymer element for the Google Photos page photos view UI */
 @customElement('photos-view')
 export class PhotosViewElement extends BaseElement {
 
   /** Do we need to reload the photos */
-  @property({type: Boolean, notify: true})
+  @property({ type: Boolean, notify: true })
   public needsPhotoRefresh = true;
 
   /** Flag to indicate if we should not filter photos */
-  @property({type: Boolean, notify: true, observer: 'noFilterChanged'})
+  @property({ type: Boolean, notify: true, observer: 'noFilterChanged' })
   public noFilter = true;
 
   /** Status of the option permission for the Google Photos API */
-  @property({type: String, notify: true})
+  @property({ type: String, notify: true })
   public permPicasa: string = Permissions.STATE.notSet;
 
   /** Flag to indicate if UI is disabled */
-  @property({type: Boolean})
+  @property({ type: Boolean })
   public disabled = false;
 
   /** Flag to display the loading... UI */
-  @property({type: Boolean})
+  @property({ type: Boolean })
   public waitForLoad = false;
 
   /** Array of photo categories */
-  @property({type: Array})
+  @property({ type: Array })
   protected readonly cats = [
-    {name: 'LANDSCAPES', label: ChromeLocale.localize('photo_cat_landscapes')},
-    {name: 'CITYSCAPES', label: ChromeLocale.localize('photo_cat_cityscapes')},
-    {name: 'LANDMARKS', label: ChromeLocale.localize('photo_cat_landmarks')},
-    {name: 'PEOPLE', label: ChromeLocale.localize('photo_cat_people')},
-    {name: 'ANIMALS', label: ChromeLocale.localize('photo_cat_animals')},
-    {name: 'PETS', label: ChromeLocale.localize('photo_cat_pets')},
-    {name: 'PERFORMANCES', label: ChromeLocale.localize('photo_cat_performances')},
-    {name: 'SPORT', label: ChromeLocale.localize('photo_cat_sport')},
-    {name: 'FOOD', label: ChromeLocale.localize('photo_cat_food')},
-    {name: 'SELFIES', label: ChromeLocale.localize('photo_cat_selfies')},
+    { name: 'LANDSCAPES', label: ChromeLocale.localize('photo_cat_landscapes') },
+    { name: 'CITYSCAPES', label: ChromeLocale.localize('photo_cat_cityscapes') },
+    { name: 'LANDMARKS', label: ChromeLocale.localize('photo_cat_landmarks') },
+    { name: 'PEOPLE', label: ChromeLocale.localize('photo_cat_people') },
+    { name: 'ANIMALS', label: ChromeLocale.localize('photo_cat_animals') },
+    { name: 'PETS', label: ChromeLocale.localize('photo_cat_pets') },
+    { name: 'PERFORMANCES', label: ChromeLocale.localize('photo_cat_performances') },
+    { name: 'SPORT', label: ChromeLocale.localize('photo_cat_sport') },
+    { name: 'FOOD', label: ChromeLocale.localize('photo_cat_food') },
+    { name: 'SELFIES', label: ChromeLocale.localize('photo_cat_selfies') },
   ];
 
   /** Count for photo mode */
-  @property({type: Number, notify: true})
+  @property({ type: Number, notify: true })
   protected photoCount = 0;
 
   /** Status label for waiter */
-  @property({type: Boolean})
+  @property({ type: Boolean })
   protected waiterStatus = '';
 
   /** Hidden state of the main ui */
@@ -153,10 +153,10 @@ export class PhotosViewElement extends BaseElement {
     super.ready();
 
     setTimeout(async () => {
-      await this.setPhotoCount().catch(() => {});
+      await this.setPhotoCount().catch(() => { });
 
       // set state of photo categories
-      this.setPhotoCats();
+      await this.setPhotoCats();
 
     }, 0);
   }
@@ -185,8 +185,8 @@ export class PhotosViewElement extends BaseElement {
       if (Array.isArray(json)) {
         // photos
         const set =
-            await ChromeStorage.asyncSet('googleImages', json,
-                'useGooglePhotos');
+          await ChromeStorage.asyncSet('googleImages', json,
+            'useGooglePhotos');
         if (!set) {
           Options.showStorageErrorDialog(METHOD);
           this.set('needsPhotoRefresh', true);
@@ -224,7 +224,7 @@ export class PhotosViewElement extends BaseElement {
    */
   @listen('click', 'refreshButton')
   public onRefreshPhotosClicked() {
-    this.loadPhotos().catch(() => {});
+    this.loadPhotos().catch(() => { });
     ChromeGA.event(ChromeGA.EVENT.BUTTON, 'refreshPhotos');
   }
 
@@ -237,7 +237,7 @@ export class PhotosViewElement extends BaseElement {
   protected onChromeStorageChanged(changes: { [key: string]: chrome.storage.StorageChange }) {
     for (const key of Object.keys(changes)) {
       if (key === 'googleImages') {
-        this.setPhotoCount().catch(() => {});
+        this.setPhotoCount().catch(() => { });
         this.set('needsPhotoRefresh', true);
         break;
       }
@@ -262,9 +262,9 @@ export class PhotosViewElement extends BaseElement {
   }
 
   /** Set the states of the photo-cat elements */
-  protected setPhotoCats() {
+  protected async setPhotoCats() {
     const els = (this.shadowRoot as ShadowRoot).querySelectorAll('photo-cat') as NodeListOf<PhotoCatElement>;
-    const filter = ChromeStorage.get('googlePhotosFilter', GoogleSource.DEF_FILTER);
+    const filter = await ChromeStorage.asyncGet('googlePhotosFilter', GoogleSource.DEF_FILTER);
     filter.contentFilter = filter.contentFilter || {};
     const includes = filter.contentFilter.includedContentCategories || [];
 
@@ -283,10 +283,10 @@ export class PhotosViewElement extends BaseElement {
    *
    * @event
    */
-  protected onPhotoCatChanged(ev: CustomEvent) {
+  protected async onPhotoCatChanged(ev: CustomEvent) {
     const cat = (ev.target as Element).id;
     const checked = ev.detail.value;
-    const filter = ChromeStorage.get('googlePhotosFilter', GoogleSource.DEF_FILTER);
+    const filter = await ChromeStorage.asyncGet('googlePhotosFilter', GoogleSource.DEF_FILTER);
     filter.contentFilter = filter.contentFilter || {};
     const includes = filter.contentFilter.includedContentCategories || [];
     const idx = includes.findIndex((e: string) => {
@@ -307,7 +307,7 @@ export class PhotosViewElement extends BaseElement {
     filter.contentFilter.includedContentCategories = includes;
 
     this.set('needsPhotoRefresh', true);
-    ChromeStorage.set('googlePhotosFilter', filter);
+    await ChromeStorage.asyncSet('googlePhotosFilter', filter);
   }
 
   /**
@@ -322,14 +322,17 @@ export class PhotosViewElement extends BaseElement {
    * @returns true if asynchronous
    * @event
    */
-  protected onChromeMessage(request: ChromeMsg.IMsgType, sender: chrome.runtime.MessageSender,
-                            response: ChromeMsg.ResponseCB) {
+  protected onChromeMessage(
+    request: ChromeMsg.IMsgType,
+    sender: chrome.runtime.MessageSender,
+    response: ChromeMsg.ResponseCB
+  ) {
     if (request.message === MyMsg.TYPE.FILTERED_PHOTOS_COUNT.message) {
       // show user status of photo loading
       const count = request.count || 0;
       const msg = `${ChromeLocale.localize('photo_count')} ${count.toString()}`;
       this.set('waiterStatus', msg);
-      response({message: 'OK'});
+      response({ message: 'OK' });
     }
     return false;
   }

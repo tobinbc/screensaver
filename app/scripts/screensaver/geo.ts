@@ -57,8 +57,8 @@ const _GEOCODE_API = 'http://maps.googleapis.com/maps/api/geocode/json';
  * @param point - 'lat,long'
  * @returns geolocation as string
  */
-export function get(point: string) {
-  if (!ChromeStorage.get('showLocation', false)) {
+export async function get(point: string) {
+  if (!(await ChromeStorage.asyncGet('showLocation', false))) {
     return Promise.reject(new Error('showLocation is off'));
   } else if (ChromeUtils.isWhiteSpace(point)) {
     return Promise.reject(new Error('point is empty or null'));

@@ -18,7 +18,7 @@ import * as ChromeGA from '../../node_modules/chrome-ext-utils/src/analytics.js'
 import * as ChromeLocale from '../../node_modules/chrome-ext-utils/src/locales.js';
 import * as ChromeMsg from '../../node_modules/chrome-ext-utils/src/msg.js';
 import * as ChromeStorage from '../../node_modules/chrome-ext-utils/src/storage.js';
-import {ChromeTime} from '../../node_modules/chrome-ext-utils/src/time.js';
+import { ChromeTime } from '../../node_modules/chrome-ext-utils/src/time.js';
 
 import * as MyMsg from '../../scripts/my_msg.js';
 import * as PhotoSources from '../../scripts/sources/photo_sources.js';
@@ -42,10 +42,10 @@ const enum ALARMS {
 }
 
 /** Set the repeating alarms for the keep awake */
-export function updateKeepAwakeAlarm() {
-  const keepAwake = ChromeStorage.get('keepAwake', AppData.DEFS.keepAwake);
-  const aStart = ChromeStorage.get('activeStart', AppData.DEFS.activeStart);
-  const aStop = ChromeStorage.get('activeStop', AppData.DEFS.activeStop);
+export async function updateKeepAwakeAlarm() {
+  const keepAwake = await ChromeStorage.asyncGet('keepAwake', AppData.DEFS.keepAwake);
+  const aStart = await ChromeStorage.asyncGet('activeStart', AppData.DEFS.activeStart);
+  const aStop = await ChromeStorage.asyncGet('activeStop', AppData.DEFS.activeStop);
 
   // create keep awake active period scheduling alarms
   if (keepAwake && (aStart !== aStop)) {
@@ -65,7 +65,7 @@ export function updateKeepAwakeAlarm() {
     // if we are currently outside of the active range
     // then set inactive state
     if (!ChromeTime.isInRange(aStart, aStop)) {
-      setInactiveState();
+      await setInactiveState();
     }
   } else {
     chrome.alarms.clear(ALARMS.ACTIVATE);
@@ -93,7 +93,7 @@ export async function updatePhotoAlarm() {
 
 /** Set the weather alarm */
 export async function updateWeatherAlarm() {
-  const showWeather = ChromeStorage.get('showCurrentWeather', AppData.DEFS.showCurrentWeather);
+  const showWeather = await ChromeStorage.asyncGet('showCurrentWeather', AppData.DEFS.showCurrentWeather);
   if (showWeather) {
     // Add repeating alarm to update current weather
     // Trigger it every ten minutes, even though weather won't
@@ -125,14 +125,14 @@ export function updateBadgeTextAlarm() {
 
 /** Set state when the screensaver is in the active time range */
 async function setActiveState() {
-  const keepAwake = ChromeStorage.get('keepAwake', AppData.DEFS.keepAwake);
-  const enabled = ChromeStorage.get('enabled', AppData.DEFS.enabled);
+  const keepAwake = await ChromeStorage.asyncGet('keepAwake', AppData.DEFS.keepAwake);
+  const enabled = await ChromeStorage.asyncGet('enabled', AppData.DEFS.enabled);
   if (keepAwake) {
     chrome.power.requestKeepAwake('display');
   }
 
   // determine if we should show screensaver
-  const interval = AppData.getIdleSeconds();
+  const interval = await AppData.getIdleSeconds();
   try {
     // @ts-ignore - type not updated
     const state = (await chrome.idle.queryState(interval)) as string;
@@ -148,8 +148,8 @@ async function setActiveState() {
 }
 
 /** Set state when the screensaver is in the inactive time range */
-function setInactiveState() {
-  const allowSuspend = ChromeStorage.get('allowSuspend', AppData.DEFS.allowSuspend);
+async function setInactiveState() {
+  const allowSuspend = await ChromeStorage.asyncGet('allowSuspend', AppData.DEFS.allowSuspend);
   if (allowSuspend) {
     chrome.power.releaseKeepAwake();
   } else {
@@ -160,18 +160,18 @@ function setInactiveState() {
 }
 
 /** Set the Badge text on the icon */
-function setBadgeText() {
-  const enabled = ChromeStorage.get('enabled', AppData.DEFS.enabled);
-  const keepAwake = ChromeStorage.get('keepAwake', AppData.DEFS.keepAwake);
+async function setBadgeText() {
+  const enabled = await ChromeStorage.asyncGet('enabled', AppData.DEFS.enabled);
+  const keepAwake = await ChromeStorage.asyncGet('keepAwake', AppData.DEFS.keepAwake);
   let text = '';
   if (enabled) {
-    text = SSController.isActive() ? '' : ChromeLocale.localize('sleep_abbrev');
+    text = await SSController.isActive() ? '' : ChromeLocale.localize('sleep_abbrev');
   } else {
     text = keepAwake
-        ? ChromeLocale.localize('power_abbrev')
-        : ChromeLocale.localize('off_abbrev');
+      ? ChromeLocale.localize('power_abbrev')
+      : ChromeLocale.localize('off_abbrev');
   }
-  chrome.browserAction.setBadgeText({text: text});
+  chrome.browserAction.setBadgeText({ text: text });
 }
 
 /**
@@ -210,7 +210,7 @@ async function onAlarm(alarm: chrome.alarms.Alarm) {
         break;
       case ALARMS.DEACTIVATE:
         // leaving active time range of keep awake
-        setInactiveState();
+        await setInactiveState();
         break;
       case ALARMS.UPDATE_PHOTOS:
         // get the latest for the daily photo streams
@@ -222,7 +222,7 @@ async function onAlarm(alarm: chrome.alarms.Alarm) {
         break;
       case ALARMS.BADGE_TEXT:
         // set the icons text
-        setBadgeText();
+        await setBadgeText();
         break;
       case ALARMS.WEATHER:
         // try to update the weather

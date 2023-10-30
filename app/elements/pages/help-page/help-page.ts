@@ -13,40 +13,46 @@
  *  https://github.com/opus1269/screensaver/blob/master/LICENSE.md
  */
 
-import {customElement, property} from '../../../node_modules/@polymer/decorators/lib/decorators.js';
-import {html} from '../../../node_modules/@polymer/polymer/polymer-element.js';
+import { customElement, property } from '../../../node_modules/@polymer/decorators/lib/decorators.js';
+import { html } from '../../../node_modules/@polymer/polymer/polymer-element.js';
 
 import '../../../node_modules/@polymer/paper-material/paper-material.js';
 
 import '../../../node_modules/@polymer/app-layout/app-toolbar/app-toolbar.js';
 
-import '../../../node_modules/@opus1269/common-custom-elements/src/setting-elements/setting-link/setting-link.js';
+import '../../../node_modules/common-custom-elements/src/setting-elements/setting-link/setting-link.js';
 
-import {BasePageElement} from '../base-page/base-page.js';
+import { BasePageElement } from '../base-page/base-page.js';
 
-import * as ChromeGA from '../../../node_modules/@opus1269/chrome-ext-utils/src/analytics.js';
-import * as ChromeUtils from '../../../node_modules/@opus1269/chrome-ext-utils/src/utils.js';
+import * as ChromeGA from '../../../node_modules/chrome-ext-utils/src/analytics.js';
+import * as ChromeUtils from '../../../node_modules/chrome-ext-utils/src/utils.js';
 
 import * as MyUtils from '../../../scripts/my_utils.js';
 
 /** Polymer element for the Help page */
 @customElement('help-page')
 export class HelpPageElement extends BasePageElement {
+  constructor() {
+    super();
+    MyUtils.getGithubPagesPath().then((path) => {
+      this.set('githubPagesPath', path);
+    })
+  }
 
   /** Path to our Github repo */
-  @property({type: String})
+  @property({ type: String })
   protected readonly githubPath = MyUtils.getGithubPath();
 
   /** Path to our Web Site */
-  @property({type: String})
-  protected readonly githubPagesPath = MyUtils.getGithubPagesPath();
+  @property({ type: String })
+  protected readonly githubPagesPath: string;
 
   /** Extension version */
-  @property({type: String})
+  @property({ type: String })
   protected readonly version = encodeURIComponent(ChromeUtils.getVersion());
 
   /** Are we ChromeOS */
-  @property({type: Boolean})
+  @property({ type: Boolean })
   protected isChromeOS = false;
 
   /**
@@ -75,8 +81,8 @@ export class HelpPageElement extends BasePageElement {
    * @param subject - email subject
    * @returns mailTo url
    */
-  protected computeMailToUrl(subject: string) {
-    return MyUtils.getEmailUrl(subject, MyUtils.getEmailBody());
+  protected async computeMailToUrl(subject: string) {
+    return MyUtils.getEmailUrl(subject, await MyUtils.getEmailBody());
   }
 
   static get template() {

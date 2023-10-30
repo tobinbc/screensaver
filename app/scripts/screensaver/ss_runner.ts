@@ -15,7 +15,7 @@
 
 import * as ChromeStorage from '../../node_modules/chrome-ext-utils/src/storage.js';
 
-import {Screensaver} from '../../scripts/screensaver/screensaver.js';
+import { Screensaver } from '../../scripts/screensaver/screensaver.js';
 import * as SSHistory from './ss_history.js';
 import * as SSPhotos from './ss_photos.js';
 
@@ -46,12 +46,12 @@ const VARS = {
  *
  * @param delay - delay before start
  */
-export function start(delay = 2000) {
-  const transTime = ChromeStorage.get('transitionTime', {base: 30, display: 30, unit: 0});
+export async function start(delay = 2000) {
+  const transTime = await ChromeStorage.asyncGet('transitionTime', { base: 30, display: 30, unit: 0 });
   VARS.transTime = transTime.base * 1000;
   setWaitTime(transTime.base * 1000);
 
-  VARS.interactive = ChromeStorage.get('interactive', false);
+  VARS.interactive = await ChromeStorage.asyncGet('interactive', false);
 
   SSHistory.initialize();
 
@@ -102,14 +102,14 @@ export function isCurrentPair(idx: number) {
  *
  * @param newIdx  - optional idx to use for current idx on restart
  */
-export function togglePaused(newIdx: number | null = null) {
+export async function togglePaused(newIdx: number | null = null) {
   if (VARS.started) {
     VARS.paused = !VARS.paused;
     Screensaver.setPaused(VARS.paused);
     if (VARS.paused) {
       stop();
     } else {
-      restart(newIdx);
+      await restart(newIdx);
     }
   }
 }
@@ -117,20 +117,20 @@ export function togglePaused(newIdx: number | null = null) {
 /**
  * Forward one slide
  */
-export function forward() {
+export async function forward() {
   if (VARS.started) {
-    step();
+    await step();
   }
 }
 
 /**
  * Backup one slide
  */
-export function back() {
+export async function back() {
   if (VARS.started) {
     const nextStep = SSHistory.back();
     if (nextStep !== null) {
-      step(nextStep);
+      await step(nextStep);
     }
   }
 }
@@ -156,12 +156,12 @@ function stop() {
  *
  * @param newIdx optional idx to use for current idx
  */
-function restart(newIdx: number | null = null) {
-  const transTime = ChromeStorage.get('transitionTime', {base: 30, display: 30, unit: 0});
+async function restart(newIdx: number | null = null) {
+  const transTime = await ChromeStorage.asyncGet('transitionTime', { base: 30, display: 30, unit: 0 });
   if (transTime) {
     setWaitTime(transTime.base * 1000);
   }
-  runShow(newIdx).catch(() => {});
+  runShow(newIdx).catch(() => { });
 }
 
 /**
@@ -169,13 +169,13 @@ function restart(newIdx: number | null = null) {
  *
  * @param newIdx optional idx to use for current idx
  */
-function step(newIdx: number | null = null) {
+async function step(newIdx: number | null = null) {
   if (isPaused()) {
-    togglePaused(newIdx);
-    togglePaused();
+    await togglePaused(newIdx);
+    await togglePaused();
   } else {
     stop();
-    restart(newIdx);
+    await restart(newIdx);
   }
 }
 

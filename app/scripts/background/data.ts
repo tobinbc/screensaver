@@ -13,22 +13,22 @@
  *  https://github.com/opus1269/screensaver/blob/master/LICENSE.md
  */
 
-import {TRANS_TYPE, VIEW_TYPE} from '../../elements/screensaver-element/screensaver-element';
-import {IUnitValue} from '../../node_modules/@opus1269/common-custom-elements/src/setting-elements/setting-slider/setting-slider';
+import { TRANS_TYPE, VIEW_TYPE } from '../../elements/screensaver-element/screensaver-element';
+import { IUnitValue } from '../../node_modules/common-custom-elements/src/setting-elements/setting-slider/setting-slider';
 
 import * as ChromeGA from '../../node_modules/chrome-ext-utils/src/analytics.js';
 import * as ChromeAuth from '../../node_modules/chrome-ext-utils/src/auth.js';
-import {ChromeLastError} from '../../node_modules/chrome-ext-utils/src/last_error.js';
+import { ChromeLastError } from '../../node_modules/chrome-ext-utils/src/last_error.js';
 import * as ChromeLocale from '../../node_modules/chrome-ext-utils/src/locales.js';
 import * as ChromeLog from '../../node_modules/chrome-ext-utils/src/log.js';
 import * as ChromeMsg from '../../node_modules/chrome-ext-utils/src/msg.js';
 import * as ChromeStorage from '../../node_modules/chrome-ext-utils/src/storage.js';
-import {DEF_TIME, TIME_FORMAT} from '../../node_modules/chrome-ext-utils/src/time.js';
+import { DEF_TIME, TIME_FORMAT } from '../../node_modules/chrome-ext-utils/src/time.js';
 
 import * as MyMsg from '../../scripts/my_msg.js';
 import * as Permissions from '../../scripts/permissions.js';
 import * as PhotoSourceFactory from '../../scripts/sources/photo_source_factory.js';
-import {GoogleSource} from '../../scripts/sources/photo_source_google.js';
+import { GoogleSource } from '../../scripts/sources/photo_source_google.js';
 import * as PhotoSources from '../../scripts/sources/photo_sources.js';
 import * as Weather from '../../scripts/weather.js';
 
@@ -56,9 +56,9 @@ export const DEFS = {
   /** Run chrome in background state */
   allowBackground: false,
   /** Unit for idle time */
-  idleTime: {base: 5, display: 5, unit: 0} as IUnitValue, // minutes
+  idleTime: { base: 5, display: 5, unit: 0 } as IUnitValue, // minutes
   /** Unit for transition time */
-  transitionTime: {base: 30, display: 30, unit: 0} as IUnitValue, // seconds
+  transitionTime: { base: 30, display: 30, unit: 0 } as IUnitValue, // seconds
   /** Skip photos with extreme aspect ratio state */
   skip: true,
   /** Show photos in random order state */
@@ -158,23 +158,23 @@ export async function initialize() {
     }
 
     // set all data to defaults
-    addDefaults();
+    await addDefaults();
 
     // set operating system
     await setOS();
 
     // set signin state
     const signedIn = await ChromeAuth.isSignedIn();
-    ChromeStorage.set('signedInToChrome', signedIn);
+    await ChromeStorage.asyncSet('signedInToChrome', signedIn);
 
     // add the last error
     await ChromeLastError.reset();
 
     // set time format based on locale
-    ChromeStorage.set('showTime', getTimeFormat());
+    await ChromeStorage.asyncSet('showTime', getTimeFormat());
 
     // set temp unit based on locale
-    ChromeStorage.set('weatherTempUnit', getTempUnit());
+    await ChromeStorage.asyncSet('weatherTempUnit', getTempUnit());
 
     // update state
     await processState();
@@ -198,13 +198,13 @@ export async function update() {
   }
   if (!oldVersion) {
     // used to save this to localstorage before DATA_VERSION 26
-    oldVersion = ChromeStorage.get<number>('version');
+    oldVersion = await ChromeStorage.asyncGet<number>('version');
   }
 
   // update version number
   try {
     await ChromeStorage.asyncSet('version', DATA_VERSION);
-    ChromeStorage.set('version', DATA_VERSION);
+    await ChromeStorage.asyncSet('version', DATA_VERSION);
   } catch (err) {
     ChromeGA.error(err.message, 'AppData.update');
   }
@@ -213,15 +213,15 @@ export async function update() {
 
     if (oldVersion < 8) {
       // change setting-slider values due to adding units
-      convertSliderValue('transitionTime');
-      convertSliderValue('idleTime');
+      await convertSliderValue('transitionTime');
+      await convertSliderValue('idleTime');
     }
 
     if (oldVersion < 10) {
       // was setting this without quotes before
       const oldOS = localStorage.getItem('os');
       if (oldOS) {
-        ChromeStorage.set('os', oldOS);
+        await ChromeStorage.asyncSet('os', oldOS);
       }
     }
 
@@ -230,7 +230,7 @@ export async function update() {
       // installed extensions before the change will keep
       // this permission on update.
       // https://stackoverflow.com/a/38278824/4468645
-      ChromeStorage.set('permPicasa', 'allowed');
+      await ChromeStorage.asyncSet('permPicasa', 'allowed');
     }
 
     if (oldVersion < 14) {
@@ -238,13 +238,13 @@ export async function update() {
       // installed extensions before the change will keep
       // this permission on update.
       // https://stackoverflow.com/a/38278824/4468645
-      ChromeStorage.set('permBackground', 'allowed');
-      ChromeStorage.set('allowBackground', true);
+      await ChromeStorage.asyncSet('permBackground', 'allowed');
+      await ChromeStorage.asyncSet('allowBackground', true);
     }
 
     if (oldVersion < 18) {
       // Need new permission for Google Photos API
-      ChromeStorage.set('permPicasa', 'notSet');
+      await ChromeStorage.asyncSet('permPicasa', 'notSet');
 
       // Remove cached Auth token
       try {
@@ -254,34 +254,34 @@ export async function update() {
       }
 
       // Google Photos API not compatible with Picasa API album id's
-      ChromeStorage.set('albumSelections', []);
+      await ChromeStorage.asyncSet('albumSelections', []);
     }
 
     if (oldVersion < 19) {
       // remove all traces of 500px
-      ChromeStorage.set('useEditors500px', null);
-      ChromeStorage.set('usePopular500px', null);
-      ChromeStorage.set('useYesterday500px', null);
-      ChromeStorage.set('editors500pxImages', null);
-      ChromeStorage.set('popular500pxImages', null);
-      ChromeStorage.set('yesterday500pxImages', null);
+      await ChromeStorage.asyncSet('useEditors500px', null);
+      await ChromeStorage.asyncSet('usePopular500px', null);
+      await ChromeStorage.asyncSet('useYesterday500px', null);
+      await ChromeStorage.asyncSet('editors500pxImages', null);
+      await ChromeStorage.asyncSet('popular500pxImages', null);
+      await ChromeStorage.asyncSet('yesterday500pxImages', null);
     }
 
     if (oldVersion < 20) {
       // set signin state
       try {
         const signedIn = await ChromeAuth.isSignedIn();
-        ChromeStorage.set('signedInToChrome', signedIn);
+        await ChromeStorage.asyncSet('signedInToChrome', signedIn);
       } catch (err) {
         // ignore
       }
 
       // change minimum transition time
-      const trans = ChromeStorage.get('transitionTime', DEFS.transitionTime);
+      const trans = await ChromeStorage.asyncGet('transitionTime', DEFS.transitionTime);
       if ((trans.unit === 0)) {
         trans.base = Math.max(10, trans.base);
         trans.display = trans.base;
-        ChromeStorage.set('transitionTime', trans);
+        await ChromeStorage.asyncSet('transitionTime', trans);
       }
     }
 
@@ -295,27 +295,27 @@ export async function update() {
 
     if (oldVersion < 22) {
       // remove unused data
-      ChromeStorage.set('gPhotosNeedsUpdate', null);
-      ChromeStorage.set('gPhotosMaxAlbums', null);
-      ChromeStorage.set('isAwake', null);
-      ChromeStorage.set('isShowing', null);
-      ChromeStorage.set('albumSelections', null);
+      await ChromeStorage.asyncSet('gPhotosNeedsUpdate', null);
+      await ChromeStorage.asyncSet('gPhotosMaxAlbums', null);
+      await ChromeStorage.asyncSet('isAwake', null);
+      await ChromeStorage.asyncSet('isShowing', null);
+      await ChromeStorage.asyncSet('albumSelections', null);
     }
 
     if (oldVersion < 23) {
       // remove unused data
-      ChromeStorage.set('googleImages', null);
+      await ChromeStorage.asyncSet('googleImages', null);
     }
 
     if (oldVersion < 25) {
       // reload chromecast photos since asp is now a string
       const key = PhotoSourceFactory.UseKey.CHROMECAST;
-      const useChromecast = ChromeStorage.get(key, DEFS[key]);
+      const useChromecast = await ChromeStorage.asyncGet(key, DEFS[key]);
       if (useChromecast) {
         try {
           await PhotoSources.process(key);
         } catch (err) {
-          ChromeStorage.set(key, false);
+          await ChromeStorage.asyncSet(key, false);
           try {
             // failed to convert, delete source
             await chrome.storage.local.remove(this._photosKey);
@@ -329,7 +329,7 @@ export async function update() {
     ChromeGA.error('Failed to get oldVersion', 'AppData.update');
   }
 
-  addDefaults();
+  await addDefaults();
 
   // update state
   try {
@@ -344,21 +344,21 @@ export async function restoreDefaults() {
   for (const key of Object.keys(DEFS)) {
     // skip Google Photos settings
     if (!key.includes('useGoogle') &&
-        (key !== 'useGoogleAlbums') &&
-        (key !== 'useGooglePhotos') &&
-        (key !== 'signedInToChrome') &&
-        (key !== 'isAlbumMode') &&
-        (key !== 'googlePhotosFilter') &&
-        (key !== 'permPicasa')) {
-      ChromeStorage.set(key, (DEFS as any)[key]);
+      (key !== 'useGoogleAlbums') &&
+      (key !== 'useGooglePhotos') &&
+      (key !== 'signedInToChrome') &&
+      (key !== 'isAlbumMode') &&
+      (key !== 'googlePhotosFilter') &&
+      (key !== 'permPicasa')) {
+      await ChromeStorage.asyncSet(key, (DEFS as any)[key]);
     }
   }
 
   // restore default time format based on locale
-  ChromeStorage.set('showTime', getTimeFormat());
+  await ChromeStorage.asyncSet('showTime', getTimeFormat());
 
   // restore default temp unit based on locale
-  ChromeStorage.set('weatherTempUnit', getTempUnit());
+  await ChromeStorage.asyncSet('weatherTempUnit', getTempUnit());
 
   try {
     // update state
@@ -380,9 +380,9 @@ export async function processState(key: string = 'all') {
 
       await processEnabled();
 
-      processKeepAwake();
+      await processKeepAwake();
 
-      processIdleTime();
+      await processIdleTime();
 
       await Alarm.updatePhotoAlarm();
 
@@ -396,7 +396,7 @@ export async function processState(key: string = 'all') {
       }
 
       // set os, if not already
-      if (!ChromeStorage.get<string>('os')) {
+      if (!await ChromeStorage.asyncGet<string>('os')) {
         await setOS();
       }
     } else {
@@ -407,7 +407,7 @@ export async function processState(key: string = 'all') {
         if (key === 'fullResGoogle') {
           // full res photo state changed update albums or photos
 
-          const isAlbums = ChromeStorage.get(PhotoSourceFactory.UseKey.ALBUMS_GOOGLE, DEFS.useGoogleAlbums);
+          const isAlbums = await ChromeStorage.asyncGet(PhotoSourceFactory.UseKey.ALBUMS_GOOGLE, DEFS.useGoogleAlbums);
           if (isAlbums) {
             // update albums
             const useKey = PhotoSourceFactory.UseKey.ALBUMS_GOOGLE;
@@ -417,11 +417,11 @@ export async function processState(key: string = 'all') {
               const msg = MyMsg.TYPE.PHOTO_SOURCE_FAILED;
               msg.key = useKey;
               msg.error = err.message;
-              ChromeMsg.send(msg).catch(() => {});
+              ChromeMsg.send(msg).catch(() => { });
             }
           }
 
-          const isPhotos = ChromeStorage.get(PhotoSourceFactory.UseKey.PHOTOS_GOOGLE, DEFS.useGooglePhotos);
+          const isPhotos = await ChromeStorage.asyncGet(PhotoSourceFactory.UseKey.PHOTOS_GOOGLE, DEFS.useGooglePhotos);
           if (isPhotos) {
             // update photos
             const useKey = PhotoSourceFactory.UseKey.PHOTOS_GOOGLE;
@@ -431,11 +431,11 @@ export async function processState(key: string = 'all') {
               const msg = MyMsg.TYPE.PHOTO_SOURCE_FAILED;
               msg.key = useKey;
               msg.error = err.message;
-              ChromeMsg.send(msg).catch(() => {});
+              ChromeMsg.send(msg).catch(() => { });
             }
           }
         } else if ((key !== PhotoSourceFactory.UseKey.ALBUMS_GOOGLE) &&
-            (key !== PhotoSourceFactory.UseKey.PHOTOS_GOOGLE)) {
+          (key !== PhotoSourceFactory.UseKey.PHOTOS_GOOGLE)) {
           // update photo source - skip Google sources as they are handled
           // by the UI when the mode changes
           try {
@@ -444,7 +444,7 @@ export async function processState(key: string = 'all') {
             const msg = MyMsg.TYPE.PHOTO_SOURCE_FAILED;
             msg.key = key;
             msg.error = err.message;
-            ChromeMsg.send(msg).catch(() => {});
+            ChromeMsg.send(msg).catch(() => { });
           }
         }
       } else {
@@ -453,13 +453,13 @@ export async function processState(key: string = 'all') {
             await processEnabled();
             break;
           case 'idleTime':
-            processIdleTime();
+            await processIdleTime();
             break;
           case 'keepAwake':
           case 'activeStart':
           case 'activeStop':
           case 'allowSuspend':
-            processKeepAwake();
+            await processKeepAwake();
             break;
           case 'weatherTempUnit':
             await Weather.updateUnits();
@@ -479,17 +479,17 @@ export async function processState(key: string = 'all') {
  *
  * @returns idle time in seconds
  */
-export function getIdleSeconds() {
-  const idle = ChromeStorage.get('idleTime', DEFS.idleTime);
+export async function getIdleSeconds() {
+  const idle = await ChromeStorage.asyncGet('idleTime', DEFS.idleTime);
   return idle.base * 60;
 }
 
 /** Move the currently selected photo sources to chrome.storage.local and delete the old ones */
 async function updateToChromeLocaleStorage() {
-  const sources = PhotoSources.getSelectedSources();
+  const sources = await PhotoSources.getSelectedSources();
   for (const source of sources) {
     const key = source.getPhotosKey();
-    const value = ChromeStorage.get(key);
+    const value = await ChromeStorage.asyncGet(key);
     if (value) {
       const set = await ChromeStorage.asyncSet(key, value);
       if (!set) {
@@ -498,7 +498,7 @@ async function updateToChromeLocaleStorage() {
         ChromeLog.error(msg, 'AppData.updateToChromeLocaleStorage');
       }
       // delete old one
-      ChromeStorage.set(key, null);
+      await ChromeStorage.asyncSet(key, null);
     }
   }
 }
@@ -515,33 +515,33 @@ async function updateToChromeLocaleStorage() {
 async function processEnabled() {
   Alarm.updateBadgeTextAlarm();
 
-  const isEnabled = ChromeStorage.get('enabled', DEFS.enabled);
+  const isEnabled = await ChromeStorage.asyncGet('enabled', DEFS.enabled);
 
   try {
     // update context menu text
     const label = isEnabled
-        ? ChromeLocale.localize('disable')
-        : ChromeLocale.localize('enable');
+      ? ChromeLocale.localize('disable')
+      : ChromeLocale.localize('enable');
 
-    await chrome.contextMenus.update('ENABLE_MENU', {title: label});
+    await chrome.contextMenus.update('ENABLE_MENU', { title: label });
   } catch (err) {
     // ignore - may not be created yet
   }
 }
 
 /** Set power scheduling features */
-function processKeepAwake() {
-  const keepAwake = ChromeStorage.get('keepAwake', DEFS.keepAwake);
+async function processKeepAwake() {
+  const keepAwake = await ChromeStorage.asyncGet('keepAwake', DEFS.keepAwake);
   keepAwake
-      ? chrome.power.requestKeepAwake('display')
-      : chrome.power.releaseKeepAwake();
+    ? chrome.power.requestKeepAwake('display')
+    : chrome.power.releaseKeepAwake();
 
-  Alarm.updateKeepAwakeAlarm();
+  await Alarm.updateKeepAwakeAlarm();
 }
 
 /** Set wait time for screen saver display after machine is idle */
-function processIdleTime() {
-  chrome.idle.setDetectionInterval(getIdleSeconds());
+async function processIdleTime() {
+  chrome.idle.setDetectionInterval(await getIdleSeconds());
 }
 
 /** Get default time format index based on locale */
@@ -560,19 +560,19 @@ function getTempUnit() {
 async function setOS() {
   try {
     const info = await chrome.runtime.getPlatformInfo();
-    ChromeStorage.set('os', info.os);
+    await ChromeStorage.asyncSet('os', info.os);
   } catch (err) {
     // something went wrong - linux seems to fail this call sometimes
-    ChromeStorage.set('os', 'unknown');
+    await ChromeStorage.asyncSet('os', 'unknown');
     ChromeGA.error(err.message, 'AppData.setOS');
   }
 }
 
 /** Save the default value for each item that doesn't exist */
-function addDefaults() {
+async function addDefaults() {
   for (const key of Object.keys(DEFS)) {
-    if (ChromeStorage.get(key) === null) {
-      ChromeStorage.set(key, (DEFS as any)[key]);
+    if (await ChromeStorage.asyncGet(key) === null) {
+      await ChromeStorage.asyncSet(key, (DEFS as any)[key]);
     }
   }
 }
@@ -582,14 +582,14 @@ function addDefaults() {
  *
  * @param key - localStorage key
  */
-function convertSliderValue(key: string) {
-  const value = ChromeStorage.get(key);
+async function convertSliderValue(key: string) {
+  const value = await ChromeStorage.asyncGet(key);
   if (value) {
     const newValue = {
       base: value,
       display: value,
       unit: 0,
     };
-    ChromeStorage.set(key, newValue);
+    await ChromeStorage.asyncSet(key, newValue);
   }
 }

@@ -99,15 +99,15 @@ export async function update(force = false) {
   const METHOD = 'Weather.update';
   const ERR_TITLE = ChromeLocale.localize('err_weather_update');
 
-  const showWeather = ChromeStorage.get('showCurrentWeather', false);
-  const tempUnit = ChromeStorage.get('weatherTempUnit', 0);
+  const showWeather = await ChromeStorage.asyncGet('showCurrentWeather', false);
+  const tempUnit = await ChromeStorage.asyncGet('weatherTempUnit', 0);
 
   if (!showWeather) {
     return;
   }
 
   if (!force) {
-    const curWeather = ChromeStorage.get('currentWeather', DEF_WEATHER);
+    const curWeather = await ChromeStorage.asyncGet('currentWeather', DEF_WEATHER);
     const lastTime = curWeather.time;
     const time = Date.now();
     if ((time - lastTime) < MIN_CALL_FREQ) {
@@ -125,11 +125,11 @@ export async function update(force = false) {
       // no longer have permission
       const msg = ChromeLocale.localize('err_geolocation_perm');
       ChromeLog.error(msg, METHOD, ERR_TITLE);
-      ChromeStorage.set('showCurrentWeather', false);
+      await ChromeStorage.asyncSet('showCurrentWeather', false);
       return;
     }
     // use last location
-    location = ChromeStorage.get('location', DEF_LOC);
+    location = await ChromeStorage.asyncGet('location', DEF_LOC);
   }
 
   // now, try to update weather
@@ -183,7 +183,7 @@ export async function update(force = false) {
       curWeather.id = weather[0].id;
     }
 
-    ChromeStorage.set('currentWeather', curWeather);
+    await ChromeStorage.asyncSet('currentWeather', curWeather);
 
     ChromeGA.event(MyGA.EVENT.WEATHER_UPDATED);
   } catch (err) {
@@ -193,15 +193,15 @@ export async function update(force = false) {
 }
 
 /** Update the display units */
-export function updateUnits() {
-  const curWeather = ChromeStorage.get('currentWeather', DEF_WEATHER);
-  const tempUnit = ChromeStorage.get('weatherTempUnit', 0);
+export async function updateUnits() {
+  const curWeather = await ChromeStorage.asyncGet('currentWeather', DEF_WEATHER);
+  const tempUnit = await ChromeStorage.asyncGet('weatherTempUnit', 0);
   if (tempUnit === 1) {
     curWeather.temp = kToF(curWeather.tempValue);
   } else {
     curWeather.temp = kToC(curWeather.tempValue);
   }
-  ChromeStorage.set('currentWeather', curWeather);
+  await ChromeStorage.asyncSet('currentWeather', curWeather);
 }
 
 /**
@@ -232,7 +232,7 @@ export async function getLocation(options = DEF_LOC_OPTIONS) {
     lat: position.coords.latitude,
     lon: position.coords.longitude,
   };
-  ChromeStorage.set('location', ret);
+  await ChromeStorage.asyncSet('location', ret);
   return ret;
 }
 

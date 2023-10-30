@@ -13,7 +13,7 @@
  *  https://github.com/opus1269/screensaver/blob/master/LICENSE.md
  */
 
-import {IPhoto} from '../sources/photo_source';
+import { IPhoto } from '../sources/photo_source';
 
 import * as ChromeGA from '../../node_modules/chrome-ext-utils/src/analytics.js';
 import * as ChromeStorage from '../../node_modules/chrome-ext-utils/src/storage.js';
@@ -33,10 +33,10 @@ export class SSPhoto {
    * @param asp - an aspect ratio
    * @returns true if the aspect ratio should be ignored
    */
-  public static ignore(asp: number) {
+  public static async ignore(asp: number) {
     let ret = false;
-    const skip = ChromeStorage.get('skip', false);
-    const photoSizing = ChromeStorage.get('photoSizing', 0);
+    const skip = await ChromeStorage.asyncGet('skip', false);
+    const photoSizing = await ChromeStorage.asyncGet('photoSizing', 0);
 
     if ((skip && ((photoSizing === 1) || (photoSizing === 3)) && SSPhoto._isBadAspect(asp))) {
       // ignore photos that would look bad with cropped or stretched sizing options
@@ -201,7 +201,7 @@ export class SSPhoto {
     }
     if (url !== null) {
       ChromeGA.event(MyGA.EVENT.VIEW_PHOTO, this._type);
-      chrome.tabs.create({url: url});
+      chrome.tabs.create({ url: url });
     }
   }
 }
