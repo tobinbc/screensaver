@@ -134,6 +134,35 @@ function copyDirWindows(done) {
   });
 }
 
+// copy a directory - Unix only
+// preconditions: srcDir and destDir set
+function copyDirUnix(done) {
+  const from = srcDir;
+  const to = destDir;
+  const command = 'rsync';
+  console.log(`copying ${from} to ${to} ...`);
+
+  const args = [
+    '-ar',
+    `${from}/`,
+    `${to}`,
+  ];
+  const copy = spawn(command, args);
+
+  copy.stdout.on('data', (data) => {
+    console.log(data.toString());
+  });
+
+  copy.stderr.on('data', (data) => {
+    console.log(`stderr: ${data.toString()}`);
+  });
+
+  copy.on('exit', (code) => {
+    console.log(`${command} exited with code ${code.toString()}`);
+    done();
+  });
+}
+
 // Development build
 function buildDev(done) {
   isProd = false;
@@ -142,7 +171,7 @@ function buildDev(done) {
   manifestDest = `build/${buildName}/app`;
 
   return gulp.series(jsLint, tsLint, tsCompile,
-      polyBuildDev, manifest, jsDelete)(done);
+    polyBuildDev, manifest, jsDelete)(done);
 }
 
 // production test build - still has manifest key
@@ -154,7 +183,7 @@ function buildProdTest(done) {
   manifestDest = `build/${buildName}/app`;
 
   return gulp.series(jsLint, tsLint, tsCompile,
-      polyBuildProd, manifest, jsDelete, zipBuild)(done);
+    polyBuildProd, manifest, jsDelete, zipBuild)(done);
 }
 
 // production build - for release to Chrome store
@@ -166,8 +195,10 @@ function buildProd(done) {
   zipDirectory = 'build/prod';
   manifestDest = 'build/prodTest/app';
 
+  const copyDir = (process.platform === 'win32') ? copyDirWindows : copyDirUnix;
+
   return gulp.series(jsLint, tsLint, tsCompile, polyBuildProd, manifest,
-      copyDirWindows, docs, jsDelete, zipBuild, prodTestDelete)(done);
+    copyDir, docs, jsDelete, zipBuild, prodTestDelete)(done);
 }
 
 // watch for file changes
@@ -201,21 +232,21 @@ function docs() {
 // Lint development js files
 function jsLint() {
   const input = files.devjs;
-  return gulp.src(input, {base: base.src}).
-      pipe(eslint()).
-      pipe(eslint.formatEach()).
-      pipe(eslint.failOnError());
+  return gulp.src(input, { base: base.src }).
+    pipe(eslint()).
+    pipe(eslint.formatEach()).
+    pipe(eslint.failOnError());
 }
 
 // Lint TypeScript files
 function tsLint() {
   const input = files.ts;
-  return gulp.src(input, {base: base.src}).
-      pipe(tslint({
-        formatter: 'verbose',
-      })).
-      pipe(plumber()).
-      pipe(tslint.report({emitError: false}));
+  return gulp.src(input, { base: base.src }).
+    pipe(tslint({
+      formatter: 'verbose',
+    })).
+    pipe(plumber()).
+    pipe(tslint.report({ emitError: false }));
 }
 
 // Compile the typescript to js in place
@@ -223,15 +254,15 @@ function tsCompile() {
   console.log('compiling ts to js...');
 
   const input = files.ts;
-  return gulp.src(input, {base: base.src}).
-      pipe(tsProject(ts.reporter.longReporter())).js.
-      pipe((!isProd ? replace(SRCH_DEBUG, REP_DEBUG) : noop())).
-      pipe(replace(SRCH_UNSPLASH, REP_UNSPLASH)).
-      pipe(replace(SRCH_FLICKR, REP_FLICKR)).
-      pipe(replace(SRCH_REDDIT, REP_REDDIT)).
-      pipe(replace(SRCH_WTHR, REP_WTHR)).
-      pipe(removeCode({always: true})).
-      pipe(gulp.dest(base.src));
+  return gulp.src(input, { base: base.src }).
+    pipe(tsProject(ts.reporter.longReporter())).js.
+    pipe((!isProd ? replace(SRCH_DEBUG, REP_DEBUG) : noop())).
+    pipe(replace(SRCH_UNSPLASH, REP_UNSPLASH)).
+    pipe(replace(SRCH_FLICKR, REP_FLICKR)).
+    pipe(replace(SRCH_REDDIT, REP_REDDIT)).
+    pipe(replace(SRCH_WTHR, REP_WTHR)).
+    pipe(removeCode({ always: true })).
+    pipe(gulp.dest(base.src));
 }
 
 // Compile the typescript to js and output to development build
@@ -239,15 +270,15 @@ function tsCompileDev() {
   console.log('compiling ts to js...');
 
   const input = files.ts;
-  return gulp.src(input, {base: base.src}).
-      pipe(tsProject(ts.reporter.longReporter())).js.
-      pipe(replace(SRCH_DEBUG, REP_DEBUG)).
-      pipe(replace(SRCH_UNSPLASH, REP_UNSPLASH)).
-      pipe(replace(SRCH_FLICKR, REP_FLICKR)).
-      pipe(replace(SRCH_REDDIT, REP_REDDIT)).
-      pipe(replace(SRCH_WTHR, REP_WTHR)).
-      pipe(removeCode({always: true})).
-      pipe(gulp.dest(base.dev));
+  return gulp.src(input, { base: base.src }).
+    pipe(tsProject(ts.reporter.longReporter())).js.
+    pipe(replace(SRCH_DEBUG, REP_DEBUG)).
+    pipe(replace(SRCH_UNSPLASH, REP_UNSPLASH)).
+    pipe(replace(SRCH_FLICKR, REP_FLICKR)).
+    pipe(replace(SRCH_REDDIT, REP_REDDIT)).
+    pipe(replace(SRCH_WTHR, REP_WTHR)).
+    pipe(removeCode({ always: true })).
+    pipe(gulp.dest(base.dev));
 }
 
 // polymer development build
@@ -263,7 +294,6 @@ function polyBuildDev(done) {
     'build', '--name', `${buildName}`, '--root', './app',
     '--entrypoint', 'html/options.html', '--shell', 'html/options.html',
     '--sources', 'scripts/**/*.js', '--sources', 'elements/**/*.js',
-    '--fragment', 'html/background.html',
     '--fragment', 'html/screensaver.html',
     '--fragment', 'html/update3.html',
     '--module-resolution', 'node', '--npm',
@@ -334,72 +364,72 @@ function prodTestDelete() {
 // manifest.json processing
 function manifest() {
   const input = files.manifest;
-  return gulp.src(input, {base: base.src}).
-      pipe((isProd && !isProdTest) ? stripLine('"key":') : noop()).
-      pipe(replace(SRCH_SS, REP_SS)).
-      pipe(replace(SRCH_CLIENT_ID, REP_CLIENT_ID)).
-      pipe(gulp.dest(manifestDest));
+  return gulp.src(input, { base: base.src }).
+    pipe((isProd && !isProdTest) ? stripLine('"key":') : noop()).
+    pipe(replace(SRCH_SS, REP_SS)).
+    pipe(replace(SRCH_CLIENT_ID, REP_CLIENT_ID)).
+    pipe(gulp.dest(manifestDest));
 }
 
 // assets
 function assets() {
   const input = files.assets;
-  return gulp.src(input, {base: base.src}).
-      pipe(gulp.dest(base.dev));
+  return gulp.src(input, { base: base.src }).
+    pipe(gulp.dest(base.dev));
 }
 
 // css
 function css() {
   const input = files.css;
-  return gulp.src(input, {base: base.src}).
-      pipe(gulp.dest(base.dev));
+  return gulp.src(input, { base: base.src }).
+    pipe(gulp.dest(base.dev));
 }
 
 // fonts
 function fonts() {
   const input = files.font;
-  return gulp.src(input, {base: base.src}).
-      pipe(gulp.dest(base.dev));
+  return gulp.src(input, { base: base.src }).
+    pipe(gulp.dest(base.dev));
 }
 
 // images
 function images() {
   const input = files.images;
-  return gulp.src(input, {base: base.src}).
-      pipe(gulp.dest(base.dev));
+  return gulp.src(input, { base: base.src }).
+    pipe(gulp.dest(base.dev));
 }
 
 // libs
 function libs() {
   const input = files.lib;
-  return gulp.src(input, {base: base.src}).
-      pipe(gulp.dest(base.dev));
+  return gulp.src(input, { base: base.src }).
+    pipe(gulp.dest(base.dev));
 }
 
 // locales
 function locales() {
   const input = files.locales;
-  return gulp.src(input, {base: base.src}).
-      pipe(gulp.dest(base.dev));
+  return gulp.src(input, { base: base.src }).
+    pipe(gulp.dest(base.dev));
 }
 
 // html
 function html() {
   const input = files.html;
-  return gulp.src(input, {base: base.src}).
-      pipe(gulp.dest(base.dev));
+  return gulp.src(input, { base: base.src }).
+    pipe(gulp.dest(base.dev));
 }
 
 // compress a build directory
 function zipBuild() {
   return gulp.src(`${zipDirectory}/app/**`).
-      pipe(!isProdTest ? zip('store.zip') : zip('store-test.zip')).
-      pipe(!isProdTest ? gulp.dest(base.store) : gulp.dest(zipDirectory));
+    pipe(!isProdTest ? zip('store.zip') : zip('store-test.zip')).
+    pipe(!isProdTest ? gulp.dest(base.store) : gulp.dest(zipDirectory));
 }
 
 exports.default = gulp.series(buildDev, watch);
 exports.develop = gulp.series(buildDev, watch);
 exports.buildDev = buildDev;
-exports.buildProdText = buildProdTest;
+exports.buildProdTest = buildProdTest;
 exports.buildProd = buildProd;
 exports.docs = docs;

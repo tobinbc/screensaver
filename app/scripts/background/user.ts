@@ -13,11 +13,11 @@
  *  https://github.com/opus1269/screensaver/blob/master/LICENSE.md
  */
 
-import * as ChromeGA from '../../node_modules/@opus1269/chrome-ext-utils/src/analytics.js';
-import * as ChromeAuth from '../../node_modules/@opus1269/chrome-ext-utils/src/auth.js';
-import * as ChromeLocale from '../../node_modules/@opus1269/chrome-ext-utils/src/locales.js';
-import * as ChromeLog from '../../node_modules/@opus1269/chrome-ext-utils/src/log.js';
-import * as ChromeStorage from '../../node_modules/@opus1269/chrome-ext-utils/src/storage.js';
+import * as ChromeGA from '../../node_modules/chrome-ext-utils/src/analytics.js';
+import * as ChromeAuth from '../../node_modules/chrome-ext-utils/src/auth.js';
+import * as ChromeLocale from '../../node_modules/chrome-ext-utils/src/locales.js';
+import * as ChromeLog from '../../node_modules/chrome-ext-utils/src/log.js';
+import * as ChromeStorage from '../../node_modules/chrome-ext-utils/src/storage.js';
 
 /**
  * Fired when signin state changes for an act. on the user's profile.

@@ -2,6 +2,9 @@
   "name": "screensaver",
   "version": "1.0.0",
   "description": "Photo screensaver Chrome extension",
+  "scripts": {
+    "build": "gulp"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/opus1269/screensaver.git"
@@ -36,6 +39,7 @@
     "gulp-typescript": "^5.0.1",
     "gulp-uglify": "^3.0.0",
     "gulp-zip": "^4.0.0",
+    "handlebars": "^4.5.0",
     "tslint": "^5.16.0",
     "typedoc": "^0.14.2",
     "typedoc-plugin-external-module-name": "^2.1.0",
@@ -43,6 +47,8 @@
     "uglify-es": "^3.3.10"
   },
   "dependencies": {
-    "polymer": "^0.5.0"
+    "@types/chrome": "^0.0.248",
+    "polymer": "^0.5.0",
+    "polymer-cli": "^1.9.11"
   }
 }

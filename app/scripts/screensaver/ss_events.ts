@@ -13,9 +13,9 @@
  *  https://github.com/opus1269/screensaver/blob/master/LICENSE.md
  */
 
-import * as ChromeGA from '../../node_modules/@opus1269/chrome-ext-utils/src/analytics.js';
-import * as ChromeMsg from '../../node_modules/@opus1269/chrome-ext-utils/src/msg.js';
-import * as ChromeStorage from '../../node_modules/@opus1269/chrome-ext-utils/src/storage.js';
+import * as ChromeGA from '../../node_modules/chrome-ext-utils/src/analytics.js';
+import * as ChromeMsg from '../../node_modules/chrome-ext-utils/src/msg.js';
+import * as ChromeStorage from '../../node_modules/chrome-ext-utils/src/storage.js';
 
 import * as MyMsg from '../../scripts/my_msg.js';
 

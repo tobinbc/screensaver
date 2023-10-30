@@ -8,9 +8,7 @@
     "noImplicitAny": true,
     "strictNullChecks": true,
     "watch": false,
-    "typeRoots": [
-      "./app/node_modules/@types"
-    ],
+   
     "types": [
       "chrome"
     ],
@@ -19,6 +17,9 @@
       "dom",
       "dom.iterable"
     ]
-  }
-
+  },
+  "exclude": [
+    "node_modules/**/*",
+    "app/node_modules/**/*"
+  ]
 }

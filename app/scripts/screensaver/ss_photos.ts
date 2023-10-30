@@ -13,8 +13,8 @@
  *  https://github.com/opus1269/screensaver/blob/master/LICENSE.md
  */
 
-import * as ChromeGA from '../../node_modules/@opus1269/chrome-ext-utils/src/analytics.js';
-import * as ChromeUtils from '../../node_modules/@opus1269/chrome-ext-utils/src/utils.js';
+import * as ChromeGA from '../../node_modules/chrome-ext-utils/src/analytics.js';
+import * as ChromeUtils from '../../node_modules/chrome-ext-utils/src/utils.js';
 
 import {IPhoto, PhotoSource} from '../sources/photo_source.js';
 import * as PhotoSourceFactory from '../sources/photo_source_factory.js';

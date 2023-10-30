@@ -14,17 +14,12 @@
  *  https://github.com/opus1269/screensaver/blob/master/LICENSE.md
  */
 
-import * as ChromeGA from '../../node_modules/@opus1269/chrome-ext-utils/src/analytics.js';
-import * as ChromeLocale from '../../node_modules/@opus1269/chrome-ext-utils/src/locales.js';
-import * as ChromeStorage from '../../node_modules/@opus1269/chrome-ext-utils/src/storage.js';
+import * as ChromeGA from '../../node_modules/chrome-ext-utils/src/analytics.js';
+import * as ChromeLocale from '../../node_modules/chrome-ext-utils/src/locales.js';
+import * as ChromeStorage from '../../node_modules/chrome-ext-utils/src/storage.js';
 
 import * as AppData from './data.js';
 import * as SSController from './ss_controller.js';
-
-// removeIf(always)
-import ChromePromise from 'chrome-promise/chrome-promise';
-// endRemoveIf(always)
-const chromep = new ChromePromise();
 
 /** Unique menu ids */
 const enum MENU {
@@ -39,7 +34,7 @@ const enum MENU {
 /** Initialize the menus */
 export async function initialize() {
   try {
-    await chromep.contextMenus.create({
+    await chrome.contextMenus.create({
       type: 'normal',
       id: MENU.DISPLAY,
       title: ChromeLocale.localize('display_now'),
@@ -47,12 +42,12 @@ export async function initialize() {
     });
   } catch (err) {
     if (!err.message.includes('duplicate id')) {
-      ChromeGA.error(err.message, 'chromep.contextMenus.create');
+      ChromeGA.error(err.message, 'chrome.contextMenus.create');
     }
   }
 
   try {
-    await chromep.contextMenus.create({
+    await chrome.contextMenus.create({
       type: 'normal',
       id: MENU.ENABLE,
       title: ChromeLocale.localize('disable'),
@@ -60,19 +55,19 @@ export async function initialize() {
     });
   } catch (err) {
     if (!err.message.includes('duplicate id')) {
-      ChromeGA.error(err.message, 'chromep.contextMenus.create');
+      ChromeGA.error(err.message, 'chrome.contextMenus.create');
     }
   }
 
   try {
-    await chromep.contextMenus.create({
+    await chrome.contextMenus.create({
       type: 'separator',
       id: MENU.SEP,
       contexts: ['browser_action'],
     });
   } catch (err) {
     if (!err.message.includes('duplicate id')) {
-      ChromeGA.error(err.message, 'chromep.contextMenus.create');
+      ChromeGA.error(err.message, 'chrome.contextMenus.create');
     }
   }
 }

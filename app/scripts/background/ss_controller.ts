@@ -13,23 +13,18 @@
  *  https://github.com/opus1269/screensaver/blob/master/LICENSE.md
  */
 
-import * as ChromeGA from '../../node_modules/@opus1269/chrome-ext-utils/src/analytics.js';
-import * as ChromeHttp from '../../node_modules/@opus1269/chrome-ext-utils/src/http.js';
-import * as ChromeLocale from '../../node_modules/@opus1269/chrome-ext-utils/src/locales.js';
-import * as ChromeLog from '../../node_modules/@opus1269/chrome-ext-utils/src/log.js';
-import * as ChromeMsg from '../../node_modules/@opus1269/chrome-ext-utils/src/msg.js';
-import * as ChromeStorage from '../../node_modules/@opus1269/chrome-ext-utils/src/storage.js';
-import {ChromeTime} from '../../node_modules/@opus1269/chrome-ext-utils/src/time.js';
-import * as ChromeUtils from '../../node_modules/@opus1269/chrome-ext-utils/src/utils.js';
+import * as ChromeGA from '../../node_modules/chrome-ext-utils/src/analytics.js';
+import * as ChromeHttp from '../../node_modules/chrome-ext-utils/src/http.js';
+import * as ChromeLocale from '../../node_modules/chrome-ext-utils/src/locales.js';
+import * as ChromeLog from '../../node_modules/chrome-ext-utils/src/log.js';
+import * as ChromeMsg from '../../node_modules/chrome-ext-utils/src/msg.js';
+import * as ChromeStorage from '../../node_modules/chrome-ext-utils/src/storage.js';
+import {ChromeTime} from '../../node_modules/chrome-ext-utils/src/time.js';
+import * as ChromeUtils from '../../node_modules/chrome-ext-utils/src/utils.js';
 
 import * as MyMsg from '../../scripts/my_msg.js';
 
 import * as AppData from './data.js';
-
-// removeIf(always)
-import ChromePromise from 'chrome-promise/chrome-promise';
-// endRemoveIf(always)
-const chromep = new ChromePromise();
 
 /** Screensaver URL */
 const SS_URL = '/html/screensaver.html';
@@ -126,7 +121,7 @@ async function hasFullscreen(disp?: chrome.system.display.DisplayInfo) {
   try {
     if (fullScreen) {
       // see if there is a Chrome window that is in full screen mode
-      const wins = await chromep.windows.getAll({populate: false});
+      const wins = await chrome.windows.getAll({populate: false});
       const left = disp ? disp.bounds.left : 0;
       const top = disp ? disp.bounds.top : 0;
       for (const win of wins) {
@@ -187,15 +182,15 @@ async function open(disp?: chrome.system.display.DisplayInfo) {
       winOpts.height = disp.bounds.height;
     }
 
-    const win = await chromep.windows.create(winOpts);
-    if (win) {
+    const win = await chrome.windows.create(winOpts);
+    if (win && win.id) {
       if (disp) {
-        await chromep.windows.update(win.id, {state: 'fullscreen'});
+        await chrome.windows.update(win.id, {state: 'fullscreen'});
       }
-      await chromep.windows.update(win.id, {focused: true});
+      await chrome.windows.update(win.id, {focused: true});
     }
 
-    await new Promise(r => setTimeout(r, 1000));
+    await new Promise((r) => setTimeout(r, 1000));
 
     await placeWindowOnTop();
 
@@ -206,9 +201,9 @@ async function open(disp?: chrome.system.display.DisplayInfo) {
 
 /** Open a screensaver on every connected display */
 async function openOnAllDisplays() {
-  // TODO: Replace typecast if chromep.system.display is type added
+  // TODO: Replace typecast if chrome.system.display is type added
   try {
-    const displayArr: chrome.system.display.DisplayInfo[] = await (chromep as any).system.display.getInfo();
+    const displayArr: chrome.system.display.DisplayInfo[] = await (chrome as any).system.display.getInfo();
     if (displayArr.length === 1) {
       await open();
     } else {

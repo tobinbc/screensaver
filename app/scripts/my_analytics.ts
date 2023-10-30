@@ -13,10 +13,10 @@
  *  https://github.com/opus1269/screensaver/blob/master/LICENSE.md
  */
 
-import {IEventType} from '../node_modules/@opus1269/chrome-ext-utils/src/analytics';
+import {IEventType} from '../node_modules/chrome-ext-utils/src/analytics';
 
-import * as ChromeGA from '../node_modules/@opus1269/chrome-ext-utils/src/analytics.js';
-import * as ChromeUtils from '../node_modules/@opus1269/chrome-ext-utils/src/utils.js';
+import * as ChromeGA from '../node_modules/chrome-ext-utils/src/analytics.js';
+import * as ChromeUtils from '../node_modules/chrome-ext-utils/src/utils.js';
 
 /** Tracking ID */
 const TRACKING_ID = 'UA-61314754-1';

@@ -84,11 +84,6 @@ import * as MyGA from '../../scripts/my_analytics.js';
 import * as MyMsg from '../../scripts/my_msg.js';
 import * as Permissions from '../../scripts/permissions.js';
 
-// removeIf(always)
-import ChromePromise from 'chrome-promise/chrome-promise';
-// endRemoveIf(always)
-const chromep = new ChromePromise();
-
 /** The pages for our SPA */
 interface IPage {
   /** Menu label */
@@ -673,13 +668,13 @@ export class AppMainElement extends BaseElement {
     if (request.message === ChromeMsg.TYPE.HIGHLIGHT.message) {
       // highlight ourselves and let the sender know we are here
       ret = true;
-      chromep.tabs.getCurrent().then((tab) => {
+      chrome.tabs.getCurrent().then((tab) => {
         if (tab && tab.id) {
           chrome.tabs.update(tab.id, {highlighted: true});
         }
         response({message: 'OK'});
       }).catch((err: Error) => {
-        ChromeLog.error(err.message, 'chromep.tabs.getCurrent');
+        ChromeLog.error(err.message, 'chrome.tabs.getCurrent');
       });
     } else if (request.message === ChromeMsg.TYPE.STORAGE_EXCEEDED.message) {
       // Display Error Dialog if a save action exceeded the

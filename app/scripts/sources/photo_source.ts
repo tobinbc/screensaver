@@ -15,17 +15,12 @@
 
 import {ISelectedAlbum} from './photo_source_google';
 
-import * as ChromeLocale from '../../node_modules/@opus1269/chrome-ext-utils/src/locales.js';
-import * as ChromeLog from '../../node_modules/@opus1269/chrome-ext-utils/src/log.js';
-import * as ChromeStorage from '../../node_modules/@opus1269/chrome-ext-utils/src/storage.js';
-import * as ChromeUtils from '../../node_modules/@opus1269/chrome-ext-utils/src/utils.js';
+import * as ChromeLocale from '../../node_modules/chrome-ext-utils/src/locales.js';
+import * as ChromeLog from '../../node_modules/chrome-ext-utils/src/log.js';
+import * as ChromeStorage from '../../node_modules/chrome-ext-utils/src/storage.js';
+import * as ChromeUtils from '../../node_modules/chrome-ext-utils/src/utils.js';
 
 import * as PhotoSourceFactory from '../../scripts/sources/photo_source_factory.js';
-
-// removeIf(always)
-import ChromePromise from 'chrome-promise/chrome-promise';
-// endRemoveIf(always)
-const chromep = new ChromePromise();
 
 /**
  * A photo from a {@link PhotoSource}
@@ -251,7 +246,7 @@ export abstract class PhotoSource {
 
       if (!(isGoogleKey && !useGoogle)) {
         try {
-          await chromep.storage.local.remove(this._photosKey);
+          await chrome.storage.local.remove(this._photosKey);
         } catch (err) {
           // ignore
         }

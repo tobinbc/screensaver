@@ -13,7 +13,7 @@
  *  https://github.com/opus1269/screensaver/blob/master/LICENSE.md
  */
 
-import {IMsgType} from '../node_modules/@opus1269/chrome-ext-utils/src/msg';
+import {IMsgType} from '../node_modules/chrome-ext-utils/src/msg';
 
 /** Chrome Messages specific to this extension */
 export const TYPE = {

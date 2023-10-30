@@ -1,3 +1,4 @@
+
 /**
  * The background script for the extension.
  *
@@ -13,16 +14,21 @@
  *  https://github.com/opus1269/screensaver/blob/master/LICENSE.md
  */
 
-import * as ChromeGA from '../../node_modules/@opus1269/chrome-ext-utils/src/analytics.js';
-import * as ChromeMsg from '../../node_modules/@opus1269/chrome-ext-utils/src/msg.js';
-import * as ChromeStorage from '../../node_modules/@opus1269/chrome-ext-utils/src/storage.js';
-import * as ChromeUtils from '../../node_modules/@opus1269/chrome-ext-utils/src/utils.js';
+// @ts-ignore - only available in browser and types are unhappy
+importScripts(
+  '../../lib/Snoocore-browser.min.js',
+  '../../node_modules/chrome-ext-utils/src/ex_handler.js');
+
+import * as ChromeGA from '../../node_modules/chrome-ext-utils/src/analytics.js';
+import * as ChromeMsg from '../../node_modules/chrome-ext-utils/src/msg.js';
+import * as ChromeStorage from '../../node_modules/chrome-ext-utils/src/storage.js';
+import * as ChromeUtils from '../../node_modules/chrome-ext-utils/src/utils.js';
 
 import * as MyGA from '../../scripts/my_analytics.js';
 import * as MyMsg from '../../scripts/my_msg.js';
 import * as Weather from '../../scripts/weather.js';
 
-import {GoogleSource, IAlbum} from '../../scripts/sources/photo_source_google.js';
+import { GoogleSource, IAlbum } from '../../scripts/sources/photo_source_google.js';
 
 import * as Alarm from './alarm.js';
 import * as ContextMenus from './context_menus.js';
@@ -36,7 +42,7 @@ async function showOptionsTab() {
     await ChromeMsg.send(ChromeMsg.TYPE.HIGHLIGHT);
   } catch (err) {
     // no one listening, create it
-    chrome.tabs.create({url: '/html/options.html'});
+    chrome.tabs.create({ url: '/html/options.html' });
   }
 }
 
@@ -88,7 +94,7 @@ async function onInstalled(details: chrome.runtime.InstalledDetails) {
       }
       if (showThreeInfo) {
         // show info on the update when moving from a now 3.x.x version
-        chrome.tabs.create({url: '/html/update3.html'});
+        chrome.tabs.create({ url: '/html/update3.html' });
       }
     }
 
@@ -132,22 +138,22 @@ async function onIconClicked() {
   }
 }
 
-/**
- * Fired when item in localStorage changes
- *
- * @link https://developer.mozilla.org/en-US/docs/Web/Events/storage
- *
- * @remarks
- * ev.key is null only if clear() is called on the storage area
- *
- * @param ev - StorageEvent
- * @event
- */
-async function onLocalStorageChanged(ev: StorageEvent) {
-  if (ev.key) {
-    await AppData.processState(ev.key);
-  }
-}
+// /**
+//  * Fired when item in localStorage changes
+//  *
+//  * @link https://developer.mozilla.org/en-US/docs/Web/Events/storage
+//  *
+//  * @remarks
+//  * ev.key is null only if clear() is called on the storage area
+//  *
+//  * @param ev - StorageEvent
+//  * @event
+//  */
+// async function onLocalStorageChanged(ev: StorageEvent) {
+//   if (ev.key) {
+//     await AppData.processState(ev.key);
+//   }
+// }
 
 /**
  * Fired when a message is sent from either an extension process<br>
@@ -161,25 +167,28 @@ async function onLocalStorageChanged(ev: StorageEvent) {
  * @returns true if asynchronous
  * @event
  */
-function onChromeMessage(request: ChromeMsg.IMsgType, sender: chrome.runtime.MessageSender,
-                         response: ChromeMsg.ResponseCB) {
+function onChromeMessage(
+  request: ChromeMsg.IMsgType,
+  sender: chrome.runtime.MessageSender,
+  response: ChromeMsg.ResponseCB,
+) {
   let ret = false;
   if (request.message === ChromeMsg.TYPE.RESTORE_DEFAULTS.message) {
     ret = true;
     AppData.restoreDefaults().then(() => {
-      response({message: 'OK'});
-    }).catch(() => {});
+      response({ message: 'OK' });
+    }).catch(() => { });
   } else if (request.message === ChromeMsg.TYPE.STORE.message) {
     if (request.key) {
       ChromeStorage.set(request.key, request.value);
-      response({message: 'OK'});
+      response({ message: 'OK' });
     }
   } else if (request.message === MyMsg.TYPE.LOAD_FILTERED_PHOTOS.message) {
     ret = true;
     GoogleSource.loadFilteredPhotos(true, true).then((photos) => {
       response(photos);
     }).catch((err) => {
-      response({message: err.message});
+      response({ message: err.message });
     });
   } else if (request.message === MyMsg.TYPE.LOAD_ALBUM.message) {
     ret = true;
@@ -187,7 +196,7 @@ function onChromeMessage(request: ChromeMsg.IMsgType, sender: chrome.runtime.Mes
       GoogleSource.loadAlbum(request.id, request.name, true, true).then((album: IAlbum) => {
         response(album);
       }).catch((err: Error) => {
-        response({message: err.message});
+        response({ message: err.message });
       });
     }
   } else if (request.message === MyMsg.TYPE.LOAD_ALBUMS.message) {
@@ -195,21 +204,21 @@ function onChromeMessage(request: ChromeMsg.IMsgType, sender: chrome.runtime.Mes
     GoogleSource.loadAlbums(true, true).then((albums) => {
       response(albums);
     }).catch((err) => {
-      response({message: err.message});
+      response({ message: err.message });
     });
   } else if (request.message === MyMsg.TYPE.UPDATE_WEATHER_ALARM.message) {
     ret = true;
     Alarm.updateWeatherAlarm().then(() => {
-      response({message: 'OK'});
+      response({ message: 'OK' });
     }).catch((err) => {
-      response({errorMessage: err.message});
+      response({ errorMessage: err.message });
     });
   } else if (request.message === MyMsg.TYPE.UPDATE_WEATHER.message) {
     ret = true;
     Weather.update().then(() => {
-      response({message: 'OK'});
+      response({ message: 'OK' });
     }).catch((err) => {
-      response({errorMessage: err.message});
+      response({ errorMessage: err.message });
     });
   }
 
@@ -229,7 +238,7 @@ chrome.runtime.onStartup.addListener(onStartup);
 chrome.browserAction.onClicked.addListener(onIconClicked);
 
 // listen for changes to the stored data
-window.addEventListener('storage', onLocalStorageChanged, false);
+// window.addEventListener('storage', onLocalStorageChanged, false);
 
 // listen for chrome messages
 ChromeMsg.addListener(onChromeMessage);

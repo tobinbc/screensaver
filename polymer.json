@@ -16,7 +16,6 @@
     "lib/**/*"
   ],
   "fragments": [
-    "html/background.html",
     "html/screensaver.html",
     "html/update3.html"
   ],

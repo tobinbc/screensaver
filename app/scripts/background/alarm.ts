@@ -14,11 +14,11 @@
  *  https://github.com/opus1269/screensaver/blob/master/LICENSE.md
  */
 
-import * as ChromeGA from '../../node_modules/@opus1269/chrome-ext-utils/src/analytics.js';
-import * as ChromeLocale from '../../node_modules/@opus1269/chrome-ext-utils/src/locales.js';
-import * as ChromeMsg from '../../node_modules/@opus1269/chrome-ext-utils/src/msg.js';
-import * as ChromeStorage from '../../node_modules/@opus1269/chrome-ext-utils/src/storage.js';
-import {ChromeTime} from '../../node_modules/@opus1269/chrome-ext-utils/src/time.js';
+import * as ChromeGA from '../../node_modules/chrome-ext-utils/src/analytics.js';
+import * as ChromeLocale from '../../node_modules/chrome-ext-utils/src/locales.js';
+import * as ChromeMsg from '../../node_modules/chrome-ext-utils/src/msg.js';
+import * as ChromeStorage from '../../node_modules/chrome-ext-utils/src/storage.js';
+import {ChromeTime} from '../../node_modules/chrome-ext-utils/src/time.js';
 
 import * as MyMsg from '../../scripts/my_msg.js';
 import * as PhotoSources from '../../scripts/sources/photo_sources.js';
@@ -26,11 +26,6 @@ import * as Weather from '../../scripts/weather.js';
 
 import * as AppData from './data.js';
 import * as SSController from './ss_controller.js';
-
-// removeIf(always)
-import ChromePromise from 'chrome-promise/chrome-promise';
-// endRemoveIf(always)
-const chromep = new ChromePromise();
 
 /** Unique alarm ids */
 const enum ALARMS {
@@ -84,7 +79,7 @@ export function updateKeepAwakeAlarm() {
 export async function updatePhotoAlarm() {
   // Add daily alarm to update photo sources that request this
   try {
-    const alarm = await chromep.alarms.get(ALARMS.UPDATE_PHOTOS);
+    const alarm = await chrome.alarms.get(ALARMS.UPDATE_PHOTOS);
     if (!alarm) {
       chrome.alarms.create(ALARMS.UPDATE_PHOTOS, {
         when: Date.now() + ChromeTime.MSEC_IN_DAY,
@@ -104,7 +99,7 @@ export async function updateWeatherAlarm() {
     // Trigger it every ten minutes, even though weather won't
     // update that often
     try {
-      const alarm = await chromep.alarms.get(ALARMS.WEATHER);
+      const alarm = await chrome.alarms.get(ALARMS.WEATHER);
       if (!alarm) {
         // doesn't exist, create it
         chrome.alarms.create(ALARMS.WEATHER, {
@@ -139,7 +134,8 @@ async function setActiveState() {
   // determine if we should show screensaver
   const interval = AppData.getIdleSeconds();
   try {
-    const state = await chromep.idle.queryState(interval);
+    // @ts-ignore - type not updated
+    const state = (await chrome.idle.queryState(interval)) as string;
     // display screensaver if enabled and the idle time criteria is met
     if (enabled && (state === 'idle')) {
       await SSController.display(false);

@@ -7,6 +7,8 @@
 *.db
 *.lock
 
+*.pem
+
 # used in building our dos
 **/tmp_jsdoc_photoscreensaver
 

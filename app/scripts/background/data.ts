@@ -16,14 +16,14 @@
 import {TRANS_TYPE, VIEW_TYPE} from '../../elements/screensaver-element/screensaver-element';
 import {IUnitValue} from '../../node_modules/@opus1269/common-custom-elements/src/setting-elements/setting-slider/setting-slider';
 
-import * as ChromeGA from '../../node_modules/@opus1269/chrome-ext-utils/src/analytics.js';
-import * as ChromeAuth from '../../node_modules/@opus1269/chrome-ext-utils/src/auth.js';
-import {ChromeLastError} from '../../node_modules/@opus1269/chrome-ext-utils/src/last_error.js';
-import * as ChromeLocale from '../../node_modules/@opus1269/chrome-ext-utils/src/locales.js';
-import * as ChromeLog from '../../node_modules/@opus1269/chrome-ext-utils/src/log.js';
-import * as ChromeMsg from '../../node_modules/@opus1269/chrome-ext-utils/src/msg.js';
-import * as ChromeStorage from '../../node_modules/@opus1269/chrome-ext-utils/src/storage.js';
-import {DEF_TIME, TIME_FORMAT} from '../../node_modules/@opus1269/chrome-ext-utils/src/time.js';
+import * as ChromeGA from '../../node_modules/chrome-ext-utils/src/analytics.js';
+import * as ChromeAuth from '../../node_modules/chrome-ext-utils/src/auth.js';
+import {ChromeLastError} from '../../node_modules/chrome-ext-utils/src/last_error.js';
+import * as ChromeLocale from '../../node_modules/chrome-ext-utils/src/locales.js';
+import * as ChromeLog from '../../node_modules/chrome-ext-utils/src/log.js';
+import * as ChromeMsg from '../../node_modules/chrome-ext-utils/src/msg.js';
+import * as ChromeStorage from '../../node_modules/chrome-ext-utils/src/storage.js';
+import {DEF_TIME, TIME_FORMAT} from '../../node_modules/chrome-ext-utils/src/time.js';
 
 import * as MyMsg from '../../scripts/my_msg.js';
 import * as Permissions from '../../scripts/permissions.js';
@@ -33,11 +33,6 @@ import * as PhotoSources from '../../scripts/sources/photo_sources.js';
 import * as Weather from '../../scripts/weather.js';
 
 import * as Alarm from './alarm.js';
-
-// removeIf(always)
-import ChromePromise from 'chrome-promise/chrome-promise';
-// endRemoveIf(always)
-const chromep = new ChromePromise();
 
 /** Version of data - update when items are added, removed, changed */
 const DATA_VERSION = 29;
@@ -323,7 +318,7 @@ export async function update() {
           ChromeStorage.set(key, false);
           try {
             // failed to convert, delete source
-            await chromep.storage.local.remove(this._photosKey);
+            await chrome.storage.local.remove(this._photosKey);
           } catch (err) {
             // ignore
           }
@@ -528,7 +523,7 @@ async function processEnabled() {
         ? ChromeLocale.localize('disable')
         : ChromeLocale.localize('enable');
 
-    await chromep.contextMenus.update('ENABLE_MENU', {title: label});
+    await chrome.contextMenus.update('ENABLE_MENU', {title: label});
   } catch (err) {
     // ignore - may not be created yet
   }
@@ -564,7 +559,7 @@ function getTempUnit() {
 /** Set the operating system value */
 async function setOS() {
   try {
-    const info = await chromep.runtime.getPlatformInfo();
+    const info = await chrome.runtime.getPlatformInfo();
     ChromeStorage.set('os', info.os);
   } catch (err) {
     // something went wrong - linux seems to fail this call sometimes

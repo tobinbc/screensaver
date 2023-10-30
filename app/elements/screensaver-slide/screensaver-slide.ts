@@ -13,12 +13,12 @@
  *  https://github.com/opus1269/screensaver/blob/master/LICENSE.md
  */
 
-import {IronImageElement} from '../../node_modules/@polymer/iron-image/iron-image';
+import { IronImageElement } from '../../node_modules/@polymer/iron-image/iron-image';
 
-import {TIME_FORMAT} from '../../node_modules/@opus1269/chrome-ext-utils/src/time';
+import { TIME_FORMAT } from '../../node_modules/@opus1269/chrome-ext-utils/src/time';
 
-import {SSPhoto} from '../../scripts/screensaver/ss_photo';
-import {TRANS_TYPE, VIEW_TYPE} from '../screensaver-element/screensaver-element';
+import { SSPhoto } from '../../scripts/screensaver/ss_photo';
+import { TRANS_TYPE, VIEW_TYPE } from '../screensaver-element/screensaver-element';
 
 import {
   computed,
@@ -28,10 +28,10 @@ import {
   property,
   query,
 } from '../../node_modules/@polymer/decorators/lib/decorators.js';
-import {html} from '../../node_modules/@polymer/polymer/polymer-element.js';
+import { html } from '../../node_modules/@polymer/polymer/polymer-element.js';
 
-import {NeonAnimatableBehavior} from '../../node_modules/@polymer/neon-animation/neon-animatable-behavior.js';
-import {mixinBehaviors} from '../../node_modules/@polymer/polymer/lib/legacy/class.js';
+import { NeonAnimatableBehavior } from '../../node_modules/@polymer/neon-animation/neon-animatable-behavior.js';
+import { mixinBehaviors } from '../../node_modules/@polymer/polymer/lib/legacy/class.js';
 
 import '../../node_modules/@polymer/iron-image/iron-image.js';
 
@@ -41,9 +41,9 @@ import '../../elements/animations/spin-down-animation/spin-down-animation.js';
 import '../../elements/animations/spin-up-animation/spin-up-animation.js';
 import '../../elements/weather-element/weather-element.js';
 
-import {BaseElement} from '../../node_modules/@opus1269/common-custom-elements/src/base-element/base-element.js';
+import { BaseElement } from '../../node_modules/@opus1269/common-custom-elements/src/base-element/base-element.js';
 
-import {WeatherElement} from '../weather-element/weather-element';
+import { WeatherElement } from '../weather-element/weather-element';
 
 import * as ChromeGA from '../../node_modules/@opus1269/chrome-ext-utils/src/analytics.js';
 import * as ChromeLocale from '../../node_modules/@opus1269/chrome-ext-utils/src/locales.js';
@@ -64,7 +64,7 @@ interface IRect {
 /** Polymer element to provide an animatable slide */
 @customElement('screensaver-slide')
 export class ScreensaverSlideElement
-    extends (mixinBehaviors([NeonAnimatableBehavior], BaseElement) as new () => BaseElement) {
+  extends (mixinBehaviors([NeonAnimatableBehavior], BaseElement) as new () => BaseElement) {
 
   /**
    * Set style info for a label in a frame view
@@ -108,59 +108,59 @@ export class ScreensaverSlideElement
   }
 
   /** The SSPhoto we contain */
-  @property({type: Object})
+  @property({ type: Object })
   public photo: SSPhoto | null = null;
 
   /** View type to render */
-  @property({type: Number})
+  @property({ type: Number })
   public viewType: VIEW_TYPE = VIEW_TYPE.LETTERBOX;
 
   /** The unique index of our view */
-  @property({type: Number})
+  @property({ type: Number })
   protected index = 0;
 
   /** The url of the photo */
-  @property({type: String})
+  @property({ type: String })
   protected url = '';
 
   /** Between photo animation type */
-  @property({type: Number})
+  @property({ type: Number })
   protected aniType: TRANS_TYPE = TRANS_TYPE.FADE;
 
   /** Screen width */
-  @property({type: Number})
+  @property({ type: Number })
   protected readonly screenWidth = screen.width;
 
   /** Screen height */
-  @property({type: Number})
+  @property({ type: Number })
   protected readonly screenHeight = screen.height;
 
   /** Label for current time */
-  @property({type: String})
+  @property({ type: String })
   protected timeLabel = '';
 
   /** Label for current date */
-  @property({type: String})
+  @property({ type: String })
   protected dateLabel = '';
 
   /** Flag for photo animation */
-  @property({type: Boolean, notify: true})
+  @property({ type: Boolean, notify: true })
   protected isAnimate = false;
 
   /** The animation object for photo animation */
-  @property({type: Object})
+  @property({ type: Object })
   protected animation: Animation | null = null;
 
   /** Detect faces during photo animation flag */
-  @property({type: Boolean})
+  @property({ type: Boolean })
   protected readonly detectFaces = ChromeStorage.get('detectFaces', false);
 
   /** The target rectangle for the photo animation when detecting faces */
-  @property({type: Object})
+  @property({ type: Object })
   protected animationTarget: IRect | null = null;
 
   /** Configuration of the current animation */
-  @property({type: Object})
+  @property({ type: Object })
   protected animationConfig = {
     entry: {
       name: 'fade-in-animation',
@@ -387,19 +387,6 @@ export class ScreensaverSlideElement
     }
   }
 
-  /** Return whether the current photo contains motion. */
-  private isMotionPhoto(): boolean {
-    const filename = this.photo && this.photo.getEx() ? this.photo.getEx().filename : undefined;
-    return filename && filename.endsWith('.MP.jpg');
-  }
-
-  private createVideoUrl(): string {
-    if (!this.photo) {
-      throw new Error('Photo is undefined!');
-    }
-    return this.url.replace(`=w${this.photo.getEx().width}-h${this.photo.getEx().height}`, '=dv');
-  }
-
   /** Render the slide according to the view type */
   protected render() {
     switch (this.viewType) {
@@ -446,7 +433,7 @@ export class ScreensaverSlideElement
     const ar = this.photo.getAspectRatio();
     const image = this.ironImage;
     const img: HTMLImageElement = image.$.img as HTMLImageElement;
-    
+
     // percent of the screen width of image
     let imgWidthPer = ((ar / SCREEN_AR * 100));
     imgWidthPer = Math.min(imgWidthPer, 100.0);
@@ -460,7 +447,7 @@ export class ScreensaverSlideElement
 
     // todo: do video render for other view types as well
     if (this.isMotionPhoto()) {
-      let vid = document.createElement('video');
+      const vid = document.createElement('video');
       vid.loop = vid.muted = vid.autoplay = true;
       vid.poster = this.url;
       vid.style.position = 'fixed';
@@ -471,8 +458,7 @@ export class ScreensaverSlideElement
       vid.src = this.createVideoUrl();
       image.parentNode!.insertBefore(vid, image);
       image.parentNode!.removeChild(image);
-    }
-    else {
+    } else {
       // set image size
       image.height = height;
       image.width = width;
@@ -566,7 +552,7 @@ export class ScreensaverSlideElement
 
     // photo size
     const height = Math.min((screen.width - padding * 2 - border * 2) / ar,
-        screen.height - padding * 2 - border - borderBot);
+      screen.height - padding * 2 - border - borderBot);
     const width = height * ar;
 
     // size with the frame
@@ -725,7 +711,7 @@ export class ScreensaverSlideElement
         await this.setAnimationTarget();
       }
 
-      const transTime = ChromeStorage.get('transitionTime', {base: 30, display: 30, unit: 0});
+      const transTime = ChromeStorage.get('transitionTime', { base: 30, display: 30, unit: 0 });
       const aniTime = transTime.base * 1000;
       let delayTime = 1000;
 
@@ -774,8 +760,8 @@ export class ScreensaverSlideElement
       const transform = `scale(${scale}) translateX(${translateX}) translateY(${translateY})`;
 
       const keyframes: Keyframe[] = [
-        {transform: 'scale(1.0) translateX(0vw) translateY(0vh)'},
-        {transform: transform},
+        { transform: 'scale(1.0) translateX(0vw) translateY(0vh)' },
+        { transform: transform },
       ];
 
       const timing: KeyframeAnimationOptions = {
@@ -796,6 +782,25 @@ export class ScreensaverSlideElement
       }
       ChromeGA.error(err.message, 'SSSlide.startAnimation');
     }
+  }
+
+  /** Return whether the current photo contains motion. */
+  private isMotionPhoto(): boolean {
+    const filename =
+      this.photo && this.photo.getEx()
+        ? this.photo.getEx().filename
+        : undefined;
+    return filename && filename.endsWith('.MP.jpg');
+  }
+
+  private createVideoUrl(): string {
+    if (!this.photo) {
+      throw new Error('Photo is undefined!');
+    }
+    return this.url.replace(
+      `=w${this.photo.getEx().width}-h${this.photo.getEx().height}`,
+      '=dv',
+    );
   }
 
   static get template() {

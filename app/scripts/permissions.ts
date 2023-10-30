@@ -13,17 +13,12 @@
  *  https://github.com/opus1269/screensaver/blob/master/LICENSE.md
  */
 
-import * as ChromeGA from '../node_modules/@opus1269/chrome-ext-utils/src/analytics.js';
-import * as ChromeAuth from '../node_modules/@opus1269/chrome-ext-utils/src/auth.js';
-import * as ChromeJSON from '../node_modules/@opus1269/chrome-ext-utils/src/json.js';
-import * as ChromeLog from '../node_modules/@opus1269/chrome-ext-utils/src/log.js';
-import * as ChromeMsg from '../node_modules/@opus1269/chrome-ext-utils/src/msg.js';
-import * as ChromeStorage from '../node_modules/@opus1269/chrome-ext-utils/src/storage.js';
-
-// removeIf(always)
-import ChromePromise from 'chrome-promise/chrome-promise';
-// endRemoveIf(always)
-const chromep = new ChromePromise();
+import * as ChromeGA from '../node_modules/chrome-ext-utils/src/analytics.js';
+import * as ChromeAuth from '../node_modules/chrome-ext-utils/src/auth.js';
+import * as ChromeJSON from '../node_modules/chrome-ext-utils/src/json.js';
+import * as ChromeLog from '../node_modules/chrome-ext-utils/src/log.js';
+import * as ChromeMsg from '../node_modules/chrome-ext-utils/src/msg.js';
+import * as ChromeStorage from '../node_modules/chrome-ext-utils/src/storage.js';
 
 /** A permission type */
 interface IType {
@@ -150,7 +145,7 @@ export async function request(type: IType) {
       }
     }
 
-    granted = await chromep.permissions.request(permissions);
+    granted = await chrome.permissions.request(permissions);
 
     if (granted) {
       await setState(type, STATE.allowed);
@@ -186,7 +181,7 @@ export async function remove(type: IType) {
 
   const hasPermission = await contains(type);
   if (hasPermission) {
-    removed = await chromep.permissions.remove({
+    removed = await chrome.permissions.remove({
       permissions: type.permissions,
       origins: type.origins,
     });
@@ -260,7 +255,7 @@ export function isInOrigins(url: string, type: IType) {
 export async function hasUnsplashSourceOrigin() {
   let ret = false;
   try {
-    ret = await chromep.permissions.contains({
+    ret = await chrome.permissions.contains({
       permissions: [],
       origins: [UNSPLASH_SOURCE_ORIGIN],
     });
@@ -278,7 +273,7 @@ export async function hasUnsplashSourceOrigin() {
 export async function hasGoogleSourceOrigin() {
   let ret = false;
   try {
-    ret = await chromep.permissions.contains({
+    ret = await chrome.permissions.contains({
       permissions: [],
       origins: [GOOGLE_SOURCE_ORIGIN],
     });
@@ -351,7 +346,7 @@ async function setState(type: IType, value: STATE) {
  * @returns true if we have the permission
  */
 async function contains(type: IType) {
-  return await chromep.permissions.contains({
+  return await chrome.permissions.contains({
     permissions: type.permissions,
     origins: type.origins,
   });
