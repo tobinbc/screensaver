@@ -19,7 +19,6 @@ import * as ChromeLocale from '../../node_modules/chrome-ext-utils/src/locales.j
 import {CCSource} from './photo_source_chromecast.js';
 import {FlickrSource} from './photo_source_flickr.js';
 import {GoogleSource} from './photo_source_google.js';
-import {RedditSource} from './photo_source_reddit.js';
 import {UnsplashSource} from './photo_source_unsplash.js';
 
 /**
@@ -88,22 +87,22 @@ export function create(useKey: UseKey) {
       return new FlickrSource(useKey, 'authorImages', Type.FLICKR,
           ChromeLocale.localize('setting_mine'),
           false, false, false, true);
-    case UseKey.SPACE_RED:
-      return new RedditSource(useKey, 'spaceRedditImages', Type.REDDIT,
-          ChromeLocale.localize('setting_reddit_space'),
-          false, true, false, 'r/spaceporn/');
-    case UseKey.EARTH_RED:
-      return new RedditSource(useKey, 'earthRedditImages', Type.REDDIT,
-          ChromeLocale.localize('setting_reddit_earth'),
-          false, true, false, 'r/EarthPorn/');
-    case UseKey.ANIMAL_RED:
-      return new RedditSource(useKey, 'animalRedditImages', Type.REDDIT,
-          ChromeLocale.localize('setting_reddit_animal'),
-          false, true, false, 'r/animalporn/');
-    case UseKey.CITY_RED:
-      return new RedditSource(useKey, 'cityRedditImages', Type.REDDIT,
-          ChromeLocale.localize('setting_reddit_city'),
-          false, true, false, 'r/cityporn/');
+    // case UseKey.SPACE_RED:
+    //   return new RedditSource(useKey, 'spaceRedditImages', Type.REDDIT,
+    //       ChromeLocale.localize('setting_reddit_space'),
+    //       false, true, false, 'r/spaceporn/');
+    // case UseKey.EARTH_RED:
+    //   return new RedditSource(useKey, 'earthRedditImages', Type.REDDIT,
+    //       ChromeLocale.localize('setting_reddit_earth'),
+    //       false, true, false, 'r/EarthPorn/');
+    // case UseKey.ANIMAL_RED:
+    //   return new RedditSource(useKey, 'animalRedditImages', Type.REDDIT,
+    //       ChromeLocale.localize('setting_reddit_animal'),
+    //       false, true, false, 'r/animalporn/');
+    // case UseKey.CITY_RED:
+    //   return new RedditSource(useKey, 'cityRedditImages', Type.REDDIT,
+    //       ChromeLocale.localize('setting_reddit_city'),
+    //       false, true, false, 'r/cityporn/');
     case UseKey.ARCHITECTURE_UNSPLASH:
       return new UnsplashSource(useKey, 'architectureUnsplashImages', Type.UNSPLASH,
           ChromeLocale.localize('setting_unsplash_architecture'),
