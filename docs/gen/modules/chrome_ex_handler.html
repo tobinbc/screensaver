@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>chrome/time | Photo Screensaver</title>
+	<title>chrome/ex_handler | Photo Screensaver</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -56,10 +56,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="chrome_time.html">chrome/time</a>
+					<a href="chrome_ex_handler.html">chrome/ex_handler</a>
 				</li>
 			</ul>
-			<h1>External module chrome/time</h1>
+			<h1>External module chrome/ex_handler</h1>
 		</div>
 	</div>
 </header>
@@ -69,52 +69,14 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Time utilities</p>
+						<p>Global exception handlers</p>
 					</div>
+					<p>Listen for unhandledrejection event to catch uncaught promises for logging purposes.<br />
+					This is a Chrome only thing.</p>
+					<p>Replace the window global error handler for logging purposes.</p>
+					<p>Include the module in each .html file:</p>
+					<pre><code class="language-html">script type="module" src="../node_modules/@opus1269/chrome-ext-utils/src/ex_handler.js"&gt;<span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span></code></pre>
 				</div>
-			</section>
-			<section class="tsd-panel-group tsd-index-group">
-				<h2>Index</h2>
-				<section class="tsd-panel tsd-index-panel">
-					<div class="tsd-index-content">
-						<section class="tsd-index-section tsd-is-external">
-							<h3>Enumerations</h3>
-							<ul class="tsd-index-list">
-								<li class="tsd-kind-enum tsd-parent-kind-external-module tsd-is-external"><a href="../enums/chrome_time.time_format.html" class="tsd-kind-icon">TIME_<wbr>FORMAT</a></li>
-							</ul>
-						</section>
-						<section class="tsd-index-section tsd-is-external">
-							<h3>Classes</h3>
-							<ul class="tsd-index-list">
-								<li class="tsd-kind-class tsd-parent-kind-external-module tsd-is-external"><a href="../classes/chrome_time.chrometime.html" class="tsd-kind-icon">Chrome<wbr>Time</a></li>
-							</ul>
-						</section>
-						<section class="tsd-index-section tsd-is-external">
-							<h3>Variables</h3>
-							<ul class="tsd-index-list">
-								<li class="tsd-kind-variable tsd-parent-kind-external-module tsd-is-external"><a href="chrome_time.html#def_time" class="tsd-kind-icon">DEF_<wbr>TIME</a></li>
-							</ul>
-						</section>
-					</div>
-				</section>
-			</section>
-			<section class="tsd-panel-group tsd-member-group tsd-is-external">
-				<h2>Variables</h2>
-				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-external-module tsd-is-external">
-					<a name="def_time" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagConst">Const</span> DEF_<wbr>TIME</h3>
-					<div class="tsd-signature tsd-kind-icon">DEF_<wbr>TIME<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"00:00"</span><span class="tsd-signature-symbol"> =&nbsp;&quot;00:00&quot;</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in node_modules/chrome-ext-utils/src/time.ts:17</li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Default time</p>
-						</div>
-					</div>
-				</section>
 			</section>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
@@ -124,21 +86,12 @@
 						<a href="../globals.html"><em>Globals</em></a>
 					</li>
 					<li class="current tsd-kind-external-module tsd-is-external">
-						<a href="chrome_time.html">chrome/time</a>
+						<a href="chrome_ex_handler.html">chrome/ex_<wbr>handler</a>
 					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
-					<li class=" tsd-kind-enum tsd-parent-kind-external-module tsd-is-external">
-						<a href="../enums/chrome_time.time_format.html" class="tsd-kind-icon">TIME_<wbr>FORMAT</a>
-					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-external-module tsd-is-external">
-						<a href="../classes/chrome_time.chrometime.html" class="tsd-kind-icon">Chrome<wbr>Time</a>
-					</li>
-					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-external">
-						<a href="chrome_time.html#def_time" class="tsd-kind-icon">DEF_<wbr>TIME</a>
-					</li>
 				</ul>
 			</nav>
 		</div>

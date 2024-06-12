@@ -7,7 +7,7 @@
 'use strict';
 /* eslint no-console: 0 */
 /* eslint require-jsdoc: 0 */
-
+require('dotenv').config();
 // paths and files
 const base = {
   app: 'screensaver',
@@ -96,9 +96,6 @@ const REP_UNSPLASH = `const KEY = '${UNSPLASH_ENV}'`;
 const FLICKR_ENV = process.env.KEY_FLICKR;
 const SRCH_FLICKR = 'const KEY = \'KEY_FLICKR\'';
 const REP_FLICKR = `const KEY = '${FLICKR_ENV}'`;
-const REDDIT_ENV = process.env.KEY_REDDIT;
-const SRCH_REDDIT = 'const KEY = \'KEY_REDDIT\'';
-const REP_REDDIT = `const KEY = '${REDDIT_ENV}'`;
 const WTHR_ENV = process.env.KEY_WEATHER;
 const SRCH_WTHR = 'const KEY = \'KEY_WEATHER\'';
 const REP_WTHR = `const KEY = '${WTHR_ENV}'`;
@@ -111,13 +108,7 @@ function copyDirWindows(done) {
   const command = 'xcopy';
   console.log(`copying ${from} to ${to} ...`);
 
-  const args = [
-    '/y',
-    '/q',
-    '/s',
-    `${from}\\*`,
-    `${to}\\`,
-  ];
+  const args = ['/y', '/q', '/s', `${from}\\*`, `${to}\\`];
   const copy = spawn(command, args);
 
   copy.stdout.on('data', (data) => {
@@ -142,11 +133,7 @@ function copyDirUnix(done) {
   const command = 'rsync';
   console.log(`copying ${from} to ${to} ...`);
 
-  const args = [
-    '-ar',
-    `${from}/`,
-    `${to}`,
-  ];
+  const args = ['-ar', `${from}/`, `${to}`];
   const copy = spawn(command, args);
 
   copy.stdout.on('data', (data) => {
@@ -170,8 +157,14 @@ function buildDev(done) {
   buildName = 'dev';
   manifestDest = `build/${buildName}/app`;
 
-  return gulp.series(jsLint, tsLint, tsCompile,
-    polyBuildDev, manifest, jsDelete)(done);
+  return gulp.series(
+    jsLint,
+    tsLint,
+    tsCompile,
+    polyBuildDev,
+    manifest,
+    jsDelete
+  )(done);
 }
 
 // production test build - still has manifest key
@@ -182,8 +175,15 @@ function buildProdTest(done) {
   zipDirectory = `build/${buildName}`;
   manifestDest = `build/${buildName}/app`;
 
-  return gulp.series(jsLint, tsLint, tsCompile,
-    polyBuildProd, manifest, jsDelete, zipBuild)(done);
+  return gulp.series(
+    jsLint,
+    tsLint,
+    tsCompile,
+    polyBuildProd,
+    manifest,
+    jsDelete,
+    zipBuild
+  )(done);
 }
 
 // production build - for release to Chrome store
@@ -195,10 +195,20 @@ function buildProd(done) {
   zipDirectory = 'build/prod';
   manifestDest = 'build/prodTest/app';
 
-  const copyDir = (process.platform === 'win32') ? copyDirWindows : copyDirUnix;
+  const copyDir = process.platform === 'win32' ? copyDirWindows : copyDirUnix;
 
-  return gulp.series(jsLint, tsLint, tsCompile, polyBuildProd, manifest,
-    copyDir, docs, jsDelete, zipBuild, prodTestDelete)(done);
+  return gulp.series(
+    jsLint,
+    tsLint,
+    tsCompile,
+    polyBuildProd,
+    manifest,
+    copyDir,
+    docs,
+    jsDelete,
+    zipBuild,
+    prodTestDelete
+  )(done);
 }
 
 // watch for file changes
@@ -218,35 +228,41 @@ function watch() {
 // Generate Typedoc
 function docs() {
   const input = files.ts;
-  return gulp.src(input).pipe(typedoc({
-    mode: 'modules',
-    module: 'system',
-    target: 'ES6',
-    out: 'docs/gen',
-    name: 'Photo Screensaver',
-    readme: 'README.md',
-    tsconfig: 'tsconfig.json',
-  }));
+  return gulp.src(input).pipe(
+    typedoc({
+      mode: 'modules',
+      module: 'system',
+      target: 'ES6',
+      out: 'docs/gen',
+      name: 'Photo Screensaver',
+      readme: 'README.md',
+      tsconfig: 'tsconfig.json',
+    })
+  );
 }
 
 // Lint development js files
 function jsLint() {
   const input = files.devjs;
-  return gulp.src(input, { base: base.src }).
-    pipe(eslint()).
-    pipe(eslint.formatEach()).
-    pipe(eslint.failOnError());
+  return gulp
+    .src(input, { base: base.src })
+    .pipe(eslint())
+    .pipe(eslint.formatEach())
+    .pipe(eslint.failOnError());
 }
 
 // Lint TypeScript files
 function tsLint() {
   const input = files.ts;
-  return gulp.src(input, { base: base.src }).
-    pipe(tslint({
-      formatter: 'verbose',
-    })).
-    pipe(plumber()).
-    pipe(tslint.report({ emitError: false }));
+  return gulp
+    .src(input, { base: base.src })
+    .pipe(
+      tslint({
+        formatter: 'verbose',
+      })
+    )
+    .pipe(plumber())
+    .pipe(tslint.report({ emitError: false }));
 }
 
 // Compile the typescript to js in place
@@ -254,15 +270,15 @@ function tsCompile() {
   console.log('compiling ts to js...');
 
   const input = files.ts;
-  return gulp.src(input, { base: base.src }).
-    pipe(tsProject(ts.reporter.longReporter())).js.
-    pipe((!isProd ? replace(SRCH_DEBUG, REP_DEBUG) : noop())).
-    pipe(replace(SRCH_UNSPLASH, REP_UNSPLASH)).
-    pipe(replace(SRCH_FLICKR, REP_FLICKR)).
-    pipe(replace(SRCH_REDDIT, REP_REDDIT)).
-    pipe(replace(SRCH_WTHR, REP_WTHR)).
-    pipe(removeCode({ always: true })).
-    pipe(gulp.dest(base.src));
+  return gulp
+    .src(input, { base: base.src })
+    .pipe(tsProject(ts.reporter.longReporter()))
+    .js.pipe(!isProd ? replace(SRCH_DEBUG, REP_DEBUG) : noop())
+    .pipe(replace(SRCH_UNSPLASH, REP_UNSPLASH))
+    .pipe(replace(SRCH_FLICKR, REP_FLICKR))
+    .pipe(replace(SRCH_WTHR, REP_WTHR))
+    .pipe(removeCode({ always: true }))
+    .pipe(gulp.dest(base.src));
 }
 
 // Compile the typescript to js and output to development build
@@ -270,15 +286,15 @@ function tsCompileDev() {
   console.log('compiling ts to js...');
 
   const input = files.ts;
-  return gulp.src(input, { base: base.src }).
-    pipe(tsProject(ts.reporter.longReporter())).js.
-    pipe(replace(SRCH_DEBUG, REP_DEBUG)).
-    pipe(replace(SRCH_UNSPLASH, REP_UNSPLASH)).
-    pipe(replace(SRCH_FLICKR, REP_FLICKR)).
-    pipe(replace(SRCH_REDDIT, REP_REDDIT)).
-    pipe(replace(SRCH_WTHR, REP_WTHR)).
-    pipe(removeCode({ always: true })).
-    pipe(gulp.dest(base.dev));
+  return gulp
+    .src(input, { base: base.src })
+    .pipe(tsProject(ts.reporter.longReporter()))
+    .js.pipe(replace(SRCH_DEBUG, REP_DEBUG))
+    .pipe(replace(SRCH_UNSPLASH, REP_UNSPLASH))
+    .pipe(replace(SRCH_FLICKR, REP_FLICKR))
+    .pipe(replace(SRCH_WTHR, REP_WTHR))
+    .pipe(removeCode({ always: true }))
+    .pipe(gulp.dest(base.dev));
 }
 
 // polymer development build
@@ -288,22 +304,22 @@ function polyBuildDev(done) {
 
   // run 'polymer build' with command line arguments
   // see: https://stackoverflow.com/a/17537559/4468645
-  const polymer = (process.platform === 'win32') ? 'polymer.cmd' : 'polymer';
+  const polymer = process.platform === 'win32' ? 'polymer.cmd' : 'polymer';
 
   const args = [
-    'build', '--name', `${buildName}`, '--root', './app',
-    '--entrypoint', 'html/options.html', '--shell', 'html/options.html',
-    '--sources', 'scripts/**/*.js', '--sources', 'elements/**/*.js',
-    '--fragment', 'html/screensaver.html',
-    '--fragment', 'html/update3.html',
-    '--module-resolution', 'node', '--npm',
-    '--extra-dependencies', 'assets/**/*',
-    '--extra-dependencies', 'css/**/*',
-    '--extra-dependencies', 'font/**/*',
-    '--extra-dependencies', 'images/**/*',
-    '--extra-dependencies', '_locales/**/*',
-    '--extra-dependencies', 'lib/**/*',
-  ];
+    ['build', '--name', `${buildName}`, '--root', './app'],
+    ['--entrypoint', 'html/options.html', '--shell', 'html/options.html'],
+    ['--sources', 'scripts/**/*.js', '--sources', 'elements/**/*.js'],
+    ['--fragment', 'html/screensaver.html'],
+    ['--fragment', 'html/update3.html'],
+    ['--module-resolution', 'node', '--npm'],
+    ['--extra-dependencies', 'assets/**/*'],
+    ['--extra-dependencies', 'css/**/*'],
+    ['--extra-dependencies', 'font/**/*'],
+    ['--extra-dependencies', 'images/**/*'],
+    ['--extra-dependencies', '_locales/**/*'],
+    ['--extra-dependencies', 'lib/**/*'],
+  ].flat();
 
   const build = spawn(polymer, args);
 
@@ -327,9 +343,24 @@ function polyBuildProd(done) {
 
   // run 'polymer build'
   // see: https://stackoverflow.com/a/17537559/4468645
-  const polymer = (process.platform === 'win32') ? 'polymer.cmd' : 'polymer';
+  const polymer = process.platform === 'win32' ? 'polymer.cmd' : 'polymer';
 
-  const build = spawn(polymer, ['build']);
+  const args = [
+    ['build', '--name', `${buildName}`, '--root', './app'],
+    ['--entrypoint', 'html/options.html', '--shell', 'html/options.html'],
+    ['--sources', 'scripts/**/*.js', '--sources', 'elements/**/*.js'],
+    ['--fragment', 'html/screensaver.html'],
+    ['--fragment', 'html/update3.html'],
+    ['--module-resolution', 'node', '--npm'],
+    ['--extra-dependencies', 'assets/**/*'],
+    ['--extra-dependencies', 'css/**/*'],
+    ['--extra-dependencies', 'font/**/*'],
+    ['--extra-dependencies', 'images/**/*'],
+    ['--extra-dependencies', '_locales/**/*'],
+    ['--extra-dependencies', 'lib/**/*'],
+  ].flat();
+
+  const build = spawn(polymer, args);
 
   build.stdout.on('data', (data) => {
     console.log(data.toString());
@@ -364,67 +395,62 @@ function prodTestDelete() {
 // manifest.json processing
 function manifest() {
   const input = files.manifest;
-  return gulp.src(input, { base: base.src }).
-    pipe((isProd && !isProdTest) ? stripLine('"key":') : noop()).
-    pipe(replace(SRCH_SS, REP_SS)).
-    pipe(replace(SRCH_CLIENT_ID, REP_CLIENT_ID)).
-    pipe(gulp.dest(manifestDest));
+  return gulp
+    .src(input, { base: base.src })
+    .pipe(isProd && !isProdTest ? stripLine('"key":') : noop())
+    .pipe(replace(SRCH_SS, REP_SS))
+    .pipe(replace(SRCH_CLIENT_ID, REP_CLIENT_ID))
+    .pipe(gulp.dest(manifestDest));
 }
 
 // assets
 function assets() {
   const input = files.assets;
-  return gulp.src(input, { base: base.src }).
-    pipe(gulp.dest(base.dev));
+  return gulp.src(input, { base: base.src }).pipe(gulp.dest(base.dev));
 }
 
 // css
 function css() {
   const input = files.css;
-  return gulp.src(input, { base: base.src }).
-    pipe(gulp.dest(base.dev));
+  return gulp.src(input, { base: base.src }).pipe(gulp.dest(base.dev));
 }
 
 // fonts
 function fonts() {
   const input = files.font;
-  return gulp.src(input, { base: base.src }).
-    pipe(gulp.dest(base.dev));
+  return gulp.src(input, { base: base.src }).pipe(gulp.dest(base.dev));
 }
 
 // images
 function images() {
   const input = files.images;
-  return gulp.src(input, { base: base.src }).
-    pipe(gulp.dest(base.dev));
+  return gulp.src(input, { base: base.src }).pipe(gulp.dest(base.dev));
 }
 
 // libs
 function libs() {
   const input = files.lib;
-  return gulp.src(input, { base: base.src }).
-    pipe(gulp.dest(base.dev));
+  return gulp.src(input, { base: base.src }).pipe(gulp.dest(base.dev));
 }
 
 // locales
 function locales() {
   const input = files.locales;
-  return gulp.src(input, { base: base.src }).
-    pipe(gulp.dest(base.dev));
+  return gulp.src(input, { base: base.src }).pipe(gulp.dest(base.dev));
 }
 
 // html
 function html() {
   const input = files.html;
-  return gulp.src(input, { base: base.src }).
-    pipe(gulp.dest(base.dev));
+  return gulp.src(input, { base: base.src }).pipe(gulp.dest(base.dev));
 }
 
 // compress a build directory
 function zipBuild() {
-  return gulp.src(`${zipDirectory}/app/**`).
-    pipe(!isProdTest ? zip('store.zip') : zip('store-test.zip')).
-    pipe(!isProdTest ? gulp.dest(base.store) : gulp.dest(zipDirectory));
+  return gulp
+    .src(`${zipDirectory}/app/**`)
+    .pipe(!isProdTest ? zip('store.zip') : zip('store-test.zip'))
+    .pipe(!isProdTest ? gulp.dest(base.store) : gulp.dest(zipDirectory));
 }
 
 exports.default = gulp.series(buildDev, watch);
