@@ -4,7 +4,7 @@
   "short_name": "__MSG_chrome_extension_name__",
   "description": "__MSG_chrome_extension_description__",
   "version": "3.10.9",
-  "minimum_chrome_version": "38",
+  "minimum_chrome_version": "88",
   "default_locale": "en_US",
   "icons": {
     "16": "/images/icon_16.png",

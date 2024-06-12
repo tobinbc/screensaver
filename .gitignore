@@ -32,3 +32,5 @@ _site/
 Thumbs.db
 *- Copy*
 
+# Local
+.env

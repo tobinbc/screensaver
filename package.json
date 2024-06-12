@@ -49,6 +49,7 @@
   "dependencies": {
     "@types/chrome": "^0.0.248",
     "common-custom-elements": "github:tobinbc/common-custom-elements",
+    "dotenv": "^16.3.1",
     "polymer": "^0.5.0",
     "polymer-cli": "^1.9.11"
   }

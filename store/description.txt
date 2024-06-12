@@ -27,7 +27,7 @@ Please rate this if you find it of value. Thank you.
 
 It is open source and advertising free.
 Source code:
-https://github.com/opus1269/screensaver
+https://github.com/tobinbc/screensaver
 
 * Privacy Statement
 
