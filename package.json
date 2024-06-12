@@ -1,23 +1,29 @@
 {
   "name": "screensaver",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Photo screensaver Chrome extension",
   "scripts": {
     "build": "gulp"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/opus1269/screensaver.git"
+    "url": "https://github.com/tobinbc/screensaver.git"
   },
   "author": {
-    "name": "Michael A. Updike",
-    "email": "igreilly1269@gmail.com"
+    "name": "Tobin Chew",
+    "email": "tobin@boffinsridge.co.uk"
   },
+  "contributors": [
+    {
+      "name": "Michael A. Updike",
+      "email": "igreilly1269@gmail.com"
+    }
+  ],
   "license": "BSD-3-Clause",
   "bugs": {
-    "url": "https://github.com/opus1269/screensaver/issues"
+    "url": "https://github.com/tobinbc/screensaver/issues"
   },
-  "homepage": "https://github.com/opus1269/screensaver",
+  "homepage": "https://github.com/tobinbc/screensaver",
   "private": true,
   "devDependencies": {
     "@polymer/gen-typescript-declarations": "^1.6.2",
